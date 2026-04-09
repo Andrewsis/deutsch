@@ -1,0 +1,15 @@
+.env
+
+# Rust
+/target
+Cargo.lock
+
+# SvelteKit
+node_modules/
+.svelte-kit/
+build/
+.env.*
+!.env.example
+
+# other
+.DS_Store
