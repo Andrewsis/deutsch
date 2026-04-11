@@ -50,3 +50,10 @@ German word dictionary with useful features, that I didn't find all in one place
 </div>
 
 ![arena where 2 users have to select the correct translation from 4 options](readme_images/arena_fight.png)
+
+
+<div align="center">
+    <h3>Tranding words</h3>
+</div>
+
+![list of tranding words and binominals](readme_images/popular_words.png)
