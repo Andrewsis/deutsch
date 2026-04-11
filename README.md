@@ -30,23 +30,23 @@ German word dictionary with useful features, that I didn't find all in one place
     <h3>Main page</h3>
 </div>
 
-![main page](readme_images\main.png)
+![main page](readme_images/main.png)
 
 <div align="center">
     <h3>Word example</h3>
 </div>
 
-![example of the word starren with youtube video pronunciation](readme_images\word_player.png)
+![example of the word starren with youtube video pronunciation](readme_images/word_player.png)
 
 
 <div align="center">
     <h3>ANKI card</h3>
 </div>
 
-![ANKI card](readme_images\flashcard_opened.png)
+![ANKI card](readme_images/flashcard_opened.png)
 
 <div align="center">
     <h3>Competitive arena</h3>
 </div>
 
-![arena where 2 users have to select the correct translation from 4 options](readme_images\arena_fight.png)
+![arena where 2 users have to select the correct translation from 4 options](readme_images/arena_fight.png)
