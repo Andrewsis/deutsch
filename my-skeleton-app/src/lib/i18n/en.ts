@@ -38,6 +38,9 @@ const en: Record<MessageKey, string> = {
     "word.notFound": "Verb \"{word}\" not found.",
     "word.backendError": "Backend error",
     "word.videoError": "Failed to load videos",
+    "word.sentences": "Example sentences",
+    "word.moreSentences": "Show more",
+    "word.source": "Source",
 
     "study.loading": "Finding words to review...",
     "study.loginRequired": "Please log in to practice words.",

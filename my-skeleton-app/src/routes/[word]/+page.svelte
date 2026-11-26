@@ -5,6 +5,7 @@
     import { apiUrl } from "$lib/api";
     import LangSwitcher from "$lib/components/LangSwitcher.svelte";
     import YouTubeClip from "$lib/components/YouTubeClip.svelte";
+    import ExampleSentences from "$lib/components/ExampleSentences.svelte";
     import { t } from "$lib/i18n";
 
     type Example = {
@@ -1011,6 +1012,8 @@
                 </div>
             </section>
         </div>
+
+        <ExampleSentences verb={w.lemma} initial={data.sentences} lang={data.lang} />
     {:else}
         <div
             class="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4 md:space-y-6 px-4"

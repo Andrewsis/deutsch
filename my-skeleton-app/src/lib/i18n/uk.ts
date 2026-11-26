@@ -36,6 +36,9 @@ const uk = {
     "word.notFound": "Дієслово \"{word}\" не знайдено.",
     "word.backendError": "Помилка бекенду",
     "word.videoError": "Помилка завантаження відео",
+    "word.sentences": "Приклади речень",
+    "word.moreSentences": "Показати ще",
+    "word.source": "Джерело",
 
     "study.loading": "Шукаємо слова для повторення...",
     "study.loginRequired": "Будь ласка, увійдіть в акаунт, щоб тренувати слова.",
