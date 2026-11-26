@@ -1,0 +1,22 @@
+{
+  "name": "translate",
+  "version": "1.0.0",
+  "description": "Generate verb translations for new languages with Claude",
+  "scripts": {
+    "translate": "tsx translate.ts",
+    "check": "tsc --noEmit"
+  },
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0",
+    "dotenv": "^18.0.10",
+    "mysql2": "^3.24.6",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.11",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "private": true
+}
