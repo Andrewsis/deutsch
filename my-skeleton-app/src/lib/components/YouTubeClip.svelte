@@ -12,7 +12,7 @@
     export let ended = false;
 
     const LEAD = 0.8; // start a bit earlier so the phrase is not cut
-    const TAIL = 0.6; // and stop a bit later
+    const TAIL = 4.6; // and stop later: subtitle timings are rough, phrases got cut
     const FALLBACK_LEN = 6; // when there is no next line
     const MIN_LEN = 2.5;
     const MAX_LEN = 12;
