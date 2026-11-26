@@ -3,13 +3,15 @@
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { apiUrl } from "$lib/api";
+    import LangSwitcher from "$lib/components/LangSwitcher.svelte";
+    import { t } from "$lib/i18n";
 
     export let data: PageData;
 
     let searchTerm = "";
 
     $: w = data?.word;
-    $: preps = w?.praepositionen_ua || [];
+    $: preps = w?.prepositions || [];
 
     $: audioForms = w?.audio_forms || [];
 
@@ -65,7 +67,7 @@
             if (res.ok) {
                 currentExamples = await res.json();
             } else {
-                console.error("Помилка завантаження відео");
+                console.error($t("word.videoError"));
             }
         } catch (e) {
             console.error(e);
@@ -115,7 +117,7 @@
                 <input
                     type="search"
                     bind:value={searchTerm}
-                    placeholder="Шукати..."
+                    placeholder={$t("common.search")}
                     class="w-full bg-stone-100 dark:bg-stone-900 border border-transparent focus:border-orange-500 focus:bg-white dark:focus:bg-stone-950 focus:ring-0 rounded-lg pl-4 pr-10 py-2 text-sm transition-all outline-none text-stone-900 dark:text-stone-100 placeholder-stone-500"
                 />
                 <button
@@ -144,8 +146,10 @@
         </div>
 
         <div class="flex items-center gap-4">
+            <LangSwitcher />
             <button
                 on:click={toggleTheme}
+                aria-label={$t("common.toggleTheme")}
                 class="text-stone-500 dark:text-stone-400 hover:text-orange-500 transition-colors p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800"
             >
                 {#if isDark}
@@ -220,11 +224,11 @@
                         >infinitiv</span
                     >
                 </div>
-                {#if w.translation_ua}
+                {#if w.translation}
                     <h3
                         class="text-lg md:text-2xl font-medium text-stone-600 dark:text-stone-300 mt-1 md:mt-2"
                     >
-                        {w.translation_ua}
+                        {w.translation}
                     </h3>
                 {/if}
             </div>
@@ -263,7 +267,7 @@
                             d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
                         ></path></svg
                     >
-                    Управління (Rektion)
+                    {$t("word.rektion")}
                 </h4>
                 <div class="flex flex-col gap-2 md:gap-3">
                     {#each preps as prep}
@@ -277,7 +281,7 @@
                             </span>
                             <span
                                 class="text-stone-700 dark:text-stone-300 text-[13px] md:text-base leading-tight"
-                                >{prep.ua}</span
+                                >{prep.text}</span
                             >
                         </div>
                     {/each}
@@ -303,7 +307,7 @@
                             {#if hasAudio(w.prs1sg)}<button
                                     on:click={() => playAudio(w.prs1sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prs1sg ?? "-"}</strong
@@ -318,7 +322,7 @@
                             {#if hasAudio(w.prs2sg)}<button
                                     on:click={() => playAudio(w.prs2sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prs2sg ?? "-"}</strong
@@ -333,7 +337,7 @@
                             {#if hasAudio(w.prs3sg)}<button
                                     on:click={() => playAudio(w.prs3sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prs3sg ?? "-"}</strong
@@ -348,7 +352,7 @@
                             {#if hasAudio(w.prs1pl)}<button
                                     on:click={() => playAudio(w.prs1pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prs1pl ?? "-"}</strong
@@ -363,7 +367,7 @@
                             {#if hasAudio(w.prs2pl)}<button
                                     on:click={() => playAudio(w.prs2pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prs2pl ?? "-"}</strong
@@ -376,7 +380,7 @@
                             {#if hasAudio(w.prs3pl)}<button
                                     on:click={() => playAudio(w.prs3pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prs3pl ?? "-"}</strong
@@ -403,7 +407,7 @@
                             {#if hasAudio(w.prt1sg)}<button
                                     on:click={() => playAudio(w.prt1sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prt1sg ?? "-"}</strong
@@ -418,7 +422,7 @@
                             {#if hasAudio(w.prt2sg)}<button
                                     on:click={() => playAudio(w.prt2sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prt2sg ?? "-"}</strong
@@ -433,7 +437,7 @@
                             {#if hasAudio(w.prt3sg)}<button
                                     on:click={() => playAudio(w.prt3sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prt3sg ?? "-"}</strong
@@ -448,7 +452,7 @@
                             {#if hasAudio(w.prt1pl)}<button
                                     on:click={() => playAudio(w.prt1pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prt1pl ?? "-"}</strong
@@ -463,7 +467,7 @@
                             {#if hasAudio(w.prt2pl)}<button
                                     on:click={() => playAudio(w.prt2pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prt2pl ?? "-"}</strong
@@ -476,7 +480,7 @@
                             {#if hasAudio(w.prt3pl)}<button
                                     on:click={() => playAudio(w.prt3pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.prt3pl ?? "-"}</strong
@@ -504,7 +508,7 @@
                                 {#if hasAudio(w.pa2)}<button
                                         on:click={() => playAudio(w.pa2)}
                                         class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                        title="Слухати">🔊</button
+                                        title={$t("word.listen")}>🔊</button
                                     >{/if}
                                 <span class="text-stone-900 dark:text-stone-100"
                                     >{w.aux === "sein" ? "bin" : "habe"}
@@ -520,7 +524,7 @@
                                 {#if hasAudio(w.pa2)}<button
                                         on:click={() => playAudio(w.pa2)}
                                         class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                        title="Слухати">🔊</button
+                                        title={$t("word.listen")}>🔊</button
                                     >{/if}
                                 <span class="text-stone-900 dark:text-stone-100"
                                     >{w.aux === "sein" ? "bist" : "hast"}
@@ -538,7 +542,7 @@
                                 {#if hasAudio(w.pa2)}<button
                                         on:click={() => playAudio(w.pa2)}
                                         class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                        title="Слухати">🔊</button
+                                        title={$t("word.listen")}>🔊</button
                                     >{/if}
                                 <span class="text-stone-900 dark:text-stone-100"
                                     >{w.aux === "sein" ? "ist" : "hat"}
@@ -554,7 +558,7 @@
                                 {#if hasAudio(w.pa2)}<button
                                         on:click={() => playAudio(w.pa2)}
                                         class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                        title="Слухати">🔊</button
+                                        title={$t("word.listen")}>🔊</button
                                     >{/if}
                                 <span class="text-stone-900 dark:text-stone-100"
                                     >{w.aux === "sein" ? "sind" : "haben"}
@@ -570,7 +574,7 @@
                                 {#if hasAudio(w.pa2)}<button
                                         on:click={() => playAudio(w.pa2)}
                                         class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                        title="Слухати">🔊</button
+                                        title={$t("word.listen")}>🔊</button
                                     >{/if}
                                 <span class="text-stone-900 dark:text-stone-100"
                                     >{w.aux === "sein" ? "seid" : "habt"}
@@ -584,7 +588,7 @@
                                 {#if hasAudio(w.pa2)}<button
                                         on:click={() => playAudio(w.pa2)}
                                         class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                        title="Слухати">🔊</button
+                                        title={$t("word.listen")}>🔊</button
                                     >{/if}
                                 <span class="text-stone-900 dark:text-stone-100"
                                     >{w.aux === "sein" ? "sind" : "haben"}
@@ -613,7 +617,7 @@
                             {#if hasAudio(w.fut1_1sg)}<button
                                     on:click={() => playAudio(w.fut1_1sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.fut1_1sg ?? "-"}</strong
@@ -628,7 +632,7 @@
                             {#if hasAudio(w.fut1_2sg)}<button
                                     on:click={() => playAudio(w.fut1_2sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.fut1_2sg ?? "-"}</strong
@@ -643,7 +647,7 @@
                             {#if hasAudio(w.fut1_3sg)}<button
                                     on:click={() => playAudio(w.fut1_3sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.fut1_3sg ?? "-"}</strong
@@ -658,7 +662,7 @@
                             {#if hasAudio(w.fut1_1pl)}<button
                                     on:click={() => playAudio(w.fut1_1pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.fut1_1pl ?? "-"}</strong
@@ -673,7 +677,7 @@
                             {#if hasAudio(w.fut1_2pl)}<button
                                     on:click={() => playAudio(w.fut1_2pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.fut1_2pl ?? "-"}</strong
@@ -686,7 +690,7 @@
                             {#if hasAudio(w.fut1_3pl)}<button
                                     on:click={() => playAudio(w.fut1_3pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.fut1_3pl ?? "-"}</strong
@@ -713,7 +717,7 @@
                             {#if hasAudio(w.kj1_1sg)}<button
                                     on:click={() => playAudio(w.kj1_1sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj1_1sg ?? "-"}</strong
@@ -728,7 +732,7 @@
                             {#if hasAudio(w.kj1_2sg)}<button
                                     on:click={() => playAudio(w.kj1_2sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj1_2sg ?? "-"}</strong
@@ -743,7 +747,7 @@
                             {#if hasAudio(w.kj1_3sg)}<button
                                     on:click={() => playAudio(w.kj1_3sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj1_3sg ?? "-"}</strong
@@ -758,7 +762,7 @@
                             {#if hasAudio(w.kj1_1pl)}<button
                                     on:click={() => playAudio(w.kj1_1pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj1_1pl ?? "-"}</strong
@@ -773,7 +777,7 @@
                             {#if hasAudio(w.kj1_2pl)}<button
                                     on:click={() => playAudio(w.kj1_2pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj1_2pl ?? "-"}</strong
@@ -786,7 +790,7 @@
                             {#if hasAudio(w.kj1_3pl)}<button
                                     on:click={() => playAudio(w.kj1_3pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj1_3pl ?? "-"}</strong
@@ -813,7 +817,7 @@
                             {#if hasAudio(w.kj2_1sg)}<button
                                     on:click={() => playAudio(w.kj2_1sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj2_1sg ?? "-"}</strong
@@ -828,7 +832,7 @@
                             {#if hasAudio(w.kj2_2sg)}<button
                                     on:click={() => playAudio(w.kj2_2sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj2_2sg ?? "-"}</strong
@@ -843,7 +847,7 @@
                             {#if hasAudio(w.kj2_3sg)}<button
                                     on:click={() => playAudio(w.kj2_3sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj2_3sg ?? "-"}</strong
@@ -858,7 +862,7 @@
                             {#if hasAudio(w.kj2_1pl)}<button
                                     on:click={() => playAudio(w.kj2_1pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj2_1pl ?? "-"}</strong
@@ -873,7 +877,7 @@
                             {#if hasAudio(w.kj2_2pl)}<button
                                     on:click={() => playAudio(w.kj2_2pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj2_2pl ?? "-"}</strong
@@ -886,7 +890,7 @@
                             {#if hasAudio(w.kj2_3pl)}<button
                                     on:click={() => playAudio(w.kj2_3pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.kj2_3pl ?? "-"}</strong
@@ -913,7 +917,7 @@
                             {#if hasAudio(w.imp2sg)}<button
                                     on:click={() => playAudio(w.imp2sg)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.imp2sg ?? "-"}</strong
@@ -928,7 +932,7 @@
                             {#if hasAudio(w.imp2pl)}<button
                                     on:click={() => playAudio(w.imp2pl)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.imp2pl ?? "-"}</strong
@@ -951,7 +955,7 @@
                             {#if hasAudio(w.pa1)}<button
                                     on:click={() => playAudio(w.pa1)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.pa1 ?? "-"}</strong
@@ -966,7 +970,7 @@
                             {#if hasAudio(w.pa2)}<button
                                     on:click={() => playAudio(w.pa2)}
                                     class="text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 text-base leading-none transition-all hover:scale-110"
-                                    title="Слухати">🔊</button
+                                    title={$t("word.listen")}>🔊</button
                                 >{/if}
                             <strong class="text-stone-900 dark:text-stone-100"
                                 >{w.pa2 ?? "-"}</strong
@@ -987,7 +991,7 @@
                         {#if hasAudio(w.inf)}<button
                                 on:click={() => playAudio(w.inf)}
                                 class="opacity-0 group-hover:opacity-100 text-xl leading-none transition-opacity hover:scale-110"
-                                title="Слухати">🔊</button
+                                title={$t("word.listen")}>🔊</button
                             >{/if}
                         <strong
                             class="text-[15px] md:text-xl font-bold text-stone-900 dark:text-stone-200"
@@ -1008,13 +1012,12 @@
                 <h2
                     class="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-200"
                 >
-                    Введіть дієслово
+                    {$t("word.title")}
                 </h2>
                 <p
                     class="text-stone-500 dark:text-stone-400 text-sm md:text-lg max-w-md mx-auto"
                 >
-                    Знайдіть відмінювання, переклад та керування німецьких
-                    дієслів. Наприклад:
+                    {$t("home.subtitle")}
                     <button
                         on:click={() => {
                             searchTerm = "machen";
@@ -1031,7 +1034,7 @@
                         class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 mx-1 transition-colors"
                         >haben</button
                     >
-                    або
+                    {$t("home.or")}
                     <button
                         on:click={() => {
                             searchTerm = "sein";
@@ -1054,7 +1057,7 @@
             class="flex justify-between items-center p-3 bg-stone-50 dark:bg-[#222] border-b border-stone-200 dark:border-stone-800"
         >
             <span class="font-bold text-sm text-stone-800 dark:text-stone-200">
-                Приклади з "{targetWord}"
+                {$t("word.examplesFor", { word: targetWord })}
             </span>
             <button
                 on:click={closePlayer}
@@ -1072,7 +1075,7 @@
                     <div
                         class="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"
                     ></div>
-                    <span class="text-white text-xs">Завантаження...</span>
+                    <span class="text-white text-xs">{$t("word.loading")}</span>
                 </div>
             {:else if currentVideo}
                 {#key currentVideo.video_id + currentVideo.start_sec}
@@ -1089,7 +1092,7 @@
                     </iframe>
                 {/key}
             {:else}
-                <span class="text-stone-400 text-sm">Відео не знайдено</span>
+                <span class="text-stone-400 text-sm">{$t("word.noVideo")}</span>
             {/if}
         </div>
 
@@ -1109,13 +1112,13 @@
                         disabled={currentIndex === 0}
                         class="px-2.5 py-1 text-xs rounded bg-stone-100 dark:bg-stone-800 disabled:opacity-30 dark:text-white transition-colors hover:bg-stone-200 dark:hover:bg-stone-700 font-medium"
                     >
-                        ← Пред
+                        {$t("word.prev")}
                     </button>
 
                     <span
                         class="text-[10px] md:text-xs text-stone-500 font-mono"
                     >
-                        {currentIndex + 1} з {currentExamples.length}
+                        {$t("word.of", { current: currentIndex + 1, total: currentExamples.length })}
                     </span>
 
                     <button
@@ -1123,7 +1126,7 @@
                         disabled={currentIndex === currentExamples.length - 1}
                         class="px-2.5 py-1 text-xs rounded bg-stone-100 dark:bg-stone-800 disabled:opacity-30 dark:text-white transition-colors hover:bg-stone-200 dark:hover:bg-stone-700 font-medium"
                     >
-                        Слід →
+                        {$t("word.next")}
                     </button>
                 </div>
             </div>

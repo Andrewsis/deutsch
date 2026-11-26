@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { apiUrl } from "$lib/api";
+    import { t } from "$lib/i18n";
 
     let showPassword = false;
 
@@ -27,14 +28,13 @@
 
             if (!res.ok) {
                 const errorData = await res.text();
-                errorMessage =
-                    errorData || "Помилка реєстрації. Спробуйте ще раз.";
+                errorMessage = errorData || $t("register.error");
             } else {
                 goto("/");
             }
         } catch (e) {
             console.error(e);
-            errorMessage = "Не вдалося з'єднатися з сервером";
+            errorMessage = $t("common.noConnection");
         } finally {
             isLoading = false;
         }
@@ -49,10 +49,10 @@
             <h1
                 class="text-3xl font-extrabold tracking-tight text-stone-900 dark:text-white mb-2"
             >
-                Реєстрація
+                {$t("common.register")}
             </h1>
             <p class="text-stone-500 dark:text-stone-400">
-                Створіть акаунт, щоб зберігати свій прогрес
+                {$t("register.subtitle")}
             </p>
         </div>
 
@@ -69,7 +69,7 @@
                 <label
                     for="username"
                     class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1.5"
-                    >Ім'я користувача</label
+                    >{$t("common.username")}</label
                 >
                 <input
                     id="username"
@@ -85,7 +85,7 @@
                 <label
                     for="email"
                     class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1.5"
-                    >Електронна пошта</label
+                    >{$t("register.email")}</label
                 >
                 <input
                     id="email"
@@ -101,7 +101,7 @@
                 <label
                     for="password"
                     class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1.5"
-                    >Пароль</label
+                    >{$t("common.password")}</label
                 >
                 <input
                     id="password"
@@ -140,18 +140,18 @@
                         ></path>
                     </svg>
                 {/if}
-                Зареєструватися
+                {$t("register.submit")}
             </button>
         </form>
 
         <div
             class="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
         >
-            Вже маєте акаунт?
+            {$t("register.haveAccount")}
             <a
                 href="/login"
                 class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 dark:decoration-orange-900 transition-colors font-medium"
-                >Увійти</a
+                >{$t("common.login")}</a
             >
         </div>
     </div>

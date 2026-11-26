@@ -1,12 +1,13 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { apiUrl } from "$lib/api";
+    import { apiUrl, withLang } from "$lib/api";
+    import { t } from "$lib/i18n";
 
     let flashcards: any[] = [];
     let currentIndex = 0;
     let isFlipped = false;
     let isLoading = true;
-    let errorMessage = "";
+    let errorKey: "study.loginRequired" | "study.loadError" | "common.noConnection" | null = null;
 
     $: currentWord = flashcards[currentIndex];
 
@@ -14,7 +15,7 @@
 
         try {
             const res = await fetch(
-                apiUrl("/api/flashcards/due"),
+                apiUrl(withLang("/api/flashcards/due")),
                 {
                     credentials: "include",
                 },
@@ -23,14 +24,13 @@
             if (res.ok) {
                 flashcards = await res.json();
             } else if (res.status === 401) {
-                errorMessage =
-                    "Будь ласка, увійдіть в акаунт, щоб тренувати слова.";
+                errorKey = "study.loginRequired";
             } else {
-                errorMessage = "Сталася помилка при завантаженні карток.";
+                errorKey = "study.loadError";
             }
         } catch (e) {
             console.error(e);
-            errorMessage = "Не вдалося з'єднатися з сервером.";
+            errorKey = "common.noConnection";
         } finally {
             isLoading = false;
         }
@@ -54,12 +54,12 @@
 
             if (!res.ok) {
                 const errText = await res.text();
-                console.error(`❌ Помилка сервера (${res.status}):`, errText);
+                console.error(`Server error (${res.status}):`, errText);
             } else {
-                console.log(`✅ Оцінка збережена!`);
+                console.log("Review saved");
             }
         } catch (e) {
-            console.error("❌ Мережева помилка (CORS або сервер лежить):", e);
+            console.error("Network error (CORS or server down):", e);
         }
 
         isFlipped = false;
@@ -90,21 +90,21 @@
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
             </svg>
-            <p class="text-stone-500">Шукаємо слова для повторення...</p>
+            <p class="text-stone-500">{$t("study.loading")}</p>
         </div>
-    {:else if errorMessage}
+    {:else if errorKey}
         <div
             class="flex flex-col items-center justify-center h-80 text-center space-y-4"
         >
             <span class="text-5xl">🔒</span>
             <h2 class="text-xl font-bold text-stone-900 dark:text-white">
-                {errorMessage}
+                {$t(errorKey)}
             </h2>
-            {#if errorMessage.includes("увійдіть")}
+            {#if errorKey === "study.loginRequired"}
                 <a
                     href="/login"
                     class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors mt-2"
-                    >Увійти</a
+                    >{$t("common.login")}</a
                 >
             {/if}
         </div>
@@ -114,20 +114,20 @@
         >
             <span class="text-6xl drop-shadow-md">🎉</span>
             <h2 class="text-2xl font-bold text-stone-900 dark:text-white">
-                На сьогодні все!
+                {$t("study.done")}
             </h2>
-            <p class="text-stone-500">Ви повторили всі заплановані слова.</p>
+            <p class="text-stone-500">{$t("study.doneText")}</p>
             <a
                 href="/"
                 class="px-6 py-2 bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold rounded-lg transition-colors mt-4"
-                >Повернутися на головну</a
+                >{$t("common.backHome")}</a
             >
         </div>
     {:else}
         <div
             class="w-full mb-4 flex justify-between text-sm font-bold text-stone-400"
         >
-            <span>Прогрес:</span>
+            <span>{$t("study.progress")}</span>
             <span>{currentIndex + 1} / {flashcards.length}</span>
         </div>
 
@@ -149,7 +149,7 @@
                         {currentWord.lemma}
                     </h2>
                     <p class="text-stone-400 mt-6 text-sm">
-                        Натисніть, щоб перевернути
+                        {$t("study.flip")}
                     </p>
                 </div>
             {:else}
@@ -159,7 +159,7 @@
                     <h3
                         class="text-3xl font-bold text-orange-600 dark:text-orange-500 mb-2"
                     >
-                        {currentWord.translation_ua || "—"}
+                        {currentWord.translation || "—"}
                     </h3>
 
                     <div
@@ -203,22 +203,22 @@
                 <button
                     on:click={() => submitReview(0)}
                     class="flex-1 bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 py-3 rounded-xl font-bold transition-colors"
-                    >Знову</button
+                    >{$t("study.again")}</button
                 >
                 <button
                     on:click={() => submitReview(1)}
                     class="flex-1 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400 py-3 rounded-xl font-bold transition-colors"
-                    >Важко</button
+                    >{$t("study.hard")}</button
                 >
                 <button
                     on:click={() => submitReview(2)}
                     class="flex-1 bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 py-3 rounded-xl font-bold transition-colors"
-                    >Добре</button
+                    >{$t("study.good")}</button
                 >
                 <button
                     on:click={() => submitReview(3)}
                     class="flex-1 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 py-3 rounded-xl font-bold transition-colors"
-                    >Легко</button
+                    >{$t("study.easy")}</button
                 >
             </div>
         {/if}

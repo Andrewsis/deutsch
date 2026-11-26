@@ -2,6 +2,8 @@
     import WordStats from "$lib/components/WordStats.svelte";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
+    import LangSwitcher from "$lib/components/LangSwitcher.svelte";
+    import { t } from "$lib/i18n";
 
     let searchTerm = "";
 
@@ -48,7 +50,7 @@
                 <input
                     type="search"
                     bind:value={searchTerm}
-                    placeholder="Шукати..."
+                    placeholder={$t("common.search")}
                     class="w-full bg-stone-100 dark:bg-stone-900 border border-transparent focus:border-orange-500 focus:bg-white dark:focus:bg-stone-950 focus:ring-0 rounded-lg pl-4 pr-10 py-2 text-sm transition-all outline-none text-stone-900 dark:text-stone-100 placeholder-stone-500"
                 />
                 <button
@@ -100,7 +102,7 @@
                         <line x1="3" y1="9" x2="21" y2="9"></line>
                         <line x1="9" y1="21" x2="9" y2="9"></line>
                     </svg>
-                    Картки
+                    {$t("nav.flashcards")}
                 </a>
 
                 <a
@@ -121,24 +123,26 @@
                         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
                         ></polygon>
                     </svg>
-                    Арена
+                    {$t("nav.arena")}
                 </a>
 
                 <a
                     href="/login"
                     class="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-orange-500 transition-colors"
                 >
-                    Увійти
+                    {$t("common.login")}
                 </a>
                 <a
                     href="/register"
                     class="text-sm font-bold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors shadow-sm"
                 >
-                    Реєстрація
+                    {$t("common.register")}
                 </a>
             </div>
+            <LangSwitcher />
             <button
                 on:click={toggleTheme}
+                aria-label={$t("common.toggleTheme")}
                 class="text-stone-500 dark:text-stone-400 hover:text-orange-500 transition-colors p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800"
             >
                 {#if isDark}
@@ -203,13 +207,12 @@
             <h2
                 class="text-3xl font-bold text-stone-800 dark:text-stone-200"
             >
-                Введіть дієслово в пошук
+                {$t("home.title")}
             </h2>
             <p
                 class="text-stone-500 dark:text-stone-400 text-lg max-w-md mx-auto"
             >
-                Знайдіть відмінювання, переклад та керування німецьких
-                дієслів. Наприклад:
+                {$t("home.subtitle")}
                 <button
                     on:click={() => {
                         searchTerm = "machen";
@@ -226,7 +229,7 @@
                     class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 mx-1 transition-colors"
                     >haben</button
                 >
-                або
+                {$t("home.or")}
                 <button
                     on:click={() => {
                         searchTerm = "sein";

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { apiUrl } from "$lib/api";
+    import { t } from "$lib/i18n";
 
     let showPassword = false;
 
@@ -30,13 +31,13 @@
 
             if (!res.ok) {
                 const errorData = await res.text();
-                errorMessage = errorData || "Невірний логін або пароль";
+                errorMessage = errorData || $t("login.invalid");
             } else {
                 window.location.href = "/";
             }
         } catch (e) {
             console.error(e);
-            errorMessage = "Не вдалося з'єднатися з сервером";
+            errorMessage = $t("common.noConnection");
         } finally {
             isLoading = false;
         }
@@ -51,10 +52,10 @@
             <h1
                 class="text-3xl font-extrabold tracking-tight text-stone-900 dark:text-white mb-2"
             >
-                Вхід
+                {$t("login.title")}
             </h1>
             <p class="text-stone-500 dark:text-stone-400">
-                З поверненням! Увійдіть у свій акаунт.
+                {$t("login.subtitle")}
             </p>
         </div>
 
@@ -71,7 +72,7 @@
                 <label
                     for="username"
                     class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1.5"
-                    >Ім'я користувача</label
+                    >{$t("common.username")}</label
                 >
                 <input
                     id="username"
@@ -87,7 +88,7 @@
                 <label
                     for="password"
                     class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1.5"
-                    >Пароль</label
+                    >{$t("common.password")}</label
                 >
                 <div class="relative">
                     <input
@@ -104,8 +105,8 @@
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
                         on:click={() => (showPassword = !showPassword)}
                         aria-label={showPassword
-                            ? "Сховати пароль"
-                            : "Показати пароль"}
+                            ? $t("login.hidePassword")
+                            : $t("login.showPassword")}
                     >
                         {#if showPassword}
                             <svg
@@ -177,18 +178,18 @@
                         ></path>
                     </svg>
                 {/if}
-                Увійти
+                {$t("common.login")}
             </button>
         </form>
 
         <div
             class="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
         >
-            Немає акаунту?
+            {$t("login.noAccount")}
             <a
                 href="/register"
                 class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 dark:decoration-orange-900 transition-colors font-medium"
-                >Зареєструватися</a
+                >{$t("login.signUp")}</a
             >
         </div>
     </div>

@@ -1,25 +1,27 @@
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
-import { apiUrl } from "$lib/api";
+import { apiUrl, withLang } from "$lib/api";
+import { tr } from "$lib/i18n";
 
-export const load: PageLoad = async ({ params, fetch }) => {
+export const load: PageLoad = async ({ params, fetch, depends }) => {
+  depends("app:lang");
   const verb = encodeURIComponent(params.word);
 
-
+  let res: Response;
   try {
-    const res = await fetch(apiUrl(`/api/word/${verb}`));
-
-    if (!res.ok) {
-      if (res.status === 404) {
-        throw error(404, { message: `Дієслово "${params.word}" не знайдено.` });
-      }
-      throw error(res.status, { message: "Помилка бекенду" });
-    }
-
-    const word = await res.json();
-    return { word };
+    res = await fetch(apiUrl(withLang(`/api/word/${verb}`)));
   } catch (e) {
     console.error("problem with Rust:", e);
-    throw error(500, { message: "couldnt connect to db" });
+    throw error(500, { message: tr("common.noConnection") });
   }
+
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw error(404, { message: tr("word.notFound", { word: params.word }) });
+    }
+    throw error(res.status, { message: tr("word.backendError") });
+  }
+
+  const word = await res.json();
+  return { word };
 };

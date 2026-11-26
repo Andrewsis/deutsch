@@ -1,6 +1,7 @@
 <script lang="ts">
     import { browser } from "$app/environment";
-    import { wsUrl } from "$lib/api";
+    import { withLang, wsUrl } from "$lib/api";
+    import { t } from "$lib/i18n";
     import { onDestroy } from "svelte";
 
     type Question = {
@@ -25,7 +26,7 @@
 
     function connect() {
         if (!browser) return;
-        ws = new WebSocket(wsUrl("/api/ws/match"));
+        ws = new WebSocket(wsUrl(withLang("/api/ws/match")));
 
         ws.onopen = () => {
             status = "waiting";
@@ -119,15 +120,15 @@
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-            На головну
+            {$t("common.home")}
         </a>
     </div>
 
     <div class="text-center">
         <h1 class="text-3xl font-extrabold text-stone-900 dark:text-white">
-            Арена
+            {$t("nav.arena")}
         </h1>
-        <p class="text-stone-500">Змагайтеся з іншими на швидкість</p>
+        <p class="text-stone-500">{$t("arena.subtitle")}</p>
     </div>
 
     {#if status === "idle"}
@@ -135,16 +136,16 @@
             on:click={connect}
             class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-colors"
         >
-            Знайти суперника
+            {$t("arena.find")}
         </button>
     {:else if status === "waiting"}
         <div class="text-center space-y-4">
             <div class="text-4xl animate-pulse">⏳</div>
             <p class="text-stone-600 dark:text-stone-400">
-                Шукаємо суперника...
+                {$t("arena.searching")}
             </p>
             <button on:click={reset} class="text-sm text-stone-400 underline"
-                >Скасувати</button
+                >{$t("arena.cancel")}</button
             >
         </div>
     {:else if status === "playing" && currentQuestion}
@@ -168,7 +169,7 @@
 
         <div class="text-center py-6">
             <p class="text-xs uppercase tracking-widest text-stone-400 mb-2">
-                Питання {currentIndex + 1} з {questions.length}
+                {$t("arena.question", { current: currentIndex + 1, total: questions.length })}
             </p>
             <p class="text-4xl font-extrabold text-stone-900 dark:text-white">
                 {currentQuestion.lemma}
@@ -206,9 +207,9 @@
                 <p
                     class="text-2xl font-extrabold text-stone-900 dark:text-white"
                 >
-                    {#if finishResult === "win"}Ви перемогли!
-                    {:else if finishResult === "lose"}Ви програли
-                    {:else}Нічия!{/if}
+                    {#if finishResult === "win"}{$t("arena.win")}
+                    {:else if finishResult === "lose"}{$t("arena.lose")}
+                    {:else}{$t("arena.draw")}{/if}
                 </p>
                 <p class="text-stone-500 mt-1">vs {opponent}</p>
             </div>
@@ -218,7 +219,7 @@
                     <p class="text-3xl font-bold text-orange-500">
                         {yourScore}
                     </p>
-                    <p class="text-xs text-stone-400 mt-1">Ваш рахунок</p>
+                    <p class="text-xs text-stone-400 mt-1">{$t("arena.yourScore")}</p>
                 </div>
                 <div class="text-center opacity-50">
                     <p class="text-3xl font-bold text-stone-500">
@@ -232,13 +233,13 @@
                 on:click={connect}
                 class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-colors"
             >
-                Грати знову
+                {$t("arena.playAgain")}
             </button>
             <button
                 on:click={reset}
                 class="text-sm text-stone-400 underline block w-full"
             >
-                На головну
+                {$t("common.home")}
             </button>
         </div>
     {/if}

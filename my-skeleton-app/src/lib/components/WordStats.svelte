@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { apiUrl } from "$lib/api";
+    import { t } from "$lib/i18n";
 
     type WordStat = {
         word: string;
@@ -12,7 +13,7 @@
     let bigrams: WordStat[] = [];
     let scrapedAt = "";
     let loading = true;
-    let error = "";
+    let error = false;
 
     onMount(async () => {
         try {
@@ -26,7 +27,7 @@
             bigrams = data.bigrams ?? [];
             scrapedAt = data.scraped_at ?? "";
         } catch (e) {
-            error = "Не вдалося завантажити статистику";
+            error = true;
         } finally {
             loading = false;
         }
@@ -69,7 +70,7 @@
         </h2>
         {#if scrapedAt}
             <p class="text-xs text-stone-400">
-                Оновлено: {formatDate(scrapedAt)}
+                {$t("stats.updated", { date: formatDate(scrapedAt) })}
             </p>
         {/if}
     </div>
@@ -81,14 +82,14 @@
             ></div>
         </div>
     {:else if error}
-        <p class="text-center text-stone-400">{error}</p>
+        <p class="text-center text-stone-400">{$t("stats.error")}</p>
     {:else}
         <!-- Облако слов -->
         <div>
             <h3
                 class="text-xs uppercase tracking-widest text-stone-400 mb-4 font-semibold"
             >
-                Популярні слова
+                {$t("stats.words")}
             </h3>
             <div class="flex flex-wrap gap-x-4 gap-y-2 leading-relaxed">
                 {#each words as word}
@@ -98,7 +99,7 @@
                             maxCount,
                         )}"
                         style="font-size: {fontSize(word.count, maxCount)}"
-                        title="{word.count} разів"
+                        title={$t("stats.times", { count: word.count })}
                     >
                         {word.word}
                     </span>
@@ -110,7 +111,7 @@
             <h3
                 class="text-xs uppercase tracking-widest text-stone-400 mb-4 font-semibold"
             >
-                Популярні словосполучення
+                {$t("stats.bigrams")}
             </h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {#each bigrams as bigram}
