@@ -13,3 +13,5 @@ build/
 
 # other
 .DS_Store
+# DB data dumps
+db/seed.sql
