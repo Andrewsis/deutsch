@@ -9,6 +9,7 @@ axum = { version = "0.8.8", features = ["macros", "ws"] }
 axum-extra = { version = "0.12.5", features = ["cookie"] }
 chrono = { version = "0.4.44", features = ["serde"] }
 dotenvy = "0.15.7"
+flate2 = "1"
 futures = "0.3.32"
 jsonwebtoken = { version = "10.3.0", features = ["aws_lc_rs"] }
 mpsc = "0.2.6"
