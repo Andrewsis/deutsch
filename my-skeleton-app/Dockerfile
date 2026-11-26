@@ -7,9 +7,15 @@ COPY . .
 # Empty = same origin: nginx proxies /api to the backend.
 ARG PUBLIC_API_URL=""
 ENV PUBLIC_API_URL=$PUBLIC_API_URL
-RUN npm run build
+RUN npm run build && npm prune --omit=dev
 
-FROM nginx:alpine
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /app/build /usr/share/nginx/html
-EXPOSE 80
+# SvelteKit adapter-node server (SSR), sits behind nginx.
+FROM node:22-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/node_modules ./node_modules
+COPY package.json ./
+USER node
+EXPOSE 3000
+CMD ["node", "build"]
