@@ -1,0 +1,24 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT v.lemma\n           FROM word_forms f\n           JOIN verben_wide v ON v.lemma = f.lemma COLLATE utf8mb4_bin\n           LEFT JOIN lemma_frequency lf ON lf.lemma = f.lemma COLLATE utf8mb4_bin\n           WHERE f.pos = 'VER' AND (f.form = ? OR f.form = LOWER(?))\n           GROUP BY v.lemma\n           ORDER BY MIN(COALESCE(lf.freq_class, 99)), v.lemma\n           LIMIT 5",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "lemma",
+        "type_info": {
+          "type": "VarString",
+          "flags": "NOT_NULL | UNIQUE_KEY | NO_DEFAULT_VALUE",
+          "max_size": 400
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "9aeb0822b177faca56fdedc6928ecc3f1c981245513269a7dc16444dc809a15f"
+}

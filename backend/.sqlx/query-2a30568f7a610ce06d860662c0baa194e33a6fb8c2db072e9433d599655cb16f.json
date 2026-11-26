@@ -1,0 +1,94 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT e.text, ve.form, t.text AS \"translation?\", e.source, e.source_ref,\n                  e.author, e.citation, e.sense\n           FROM verben_wide v\n           JOIN verb_examples ve ON ve.verb_id = v.id\n           JOIN example_sentences e ON e.id = ve.example_id\n           LEFT JOIN example_translations t ON t.example_id = e.id AND t.lang = ?\n           WHERE v.lemma = ?\n           ORDER BY t.text IS NULL,\n                    e.citation IS NOT NULL,\n                    e.word_count NOT BETWEEN 4 AND 14,\n                    e.rarity DIV 20000,\n                    e.source = 'tatoeba',\n                    e.rarity,\n                    e.id\n           LIMIT ? OFFSET ?",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "text",
+        "type_info": {
+          "type": "Blob",
+          "flags": "NOT_NULL | BLOB | NO_DEFAULT_VALUE",
+          "max_size": 262140
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "form",
+        "type_info": {
+          "type": "VarString",
+          "flags": "NOT_NULL | NO_DEFAULT_VALUE",
+          "max_size": 800
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "translation?",
+        "type_info": {
+          "type": "Blob",
+          "flags": "BLOB | NO_DEFAULT_VALUE",
+          "max_size": 262140
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "source",
+        "type_info": {
+          "type": "String",
+          "flags": "NOT_NULL | MULTIPLE_KEY | ENUM | NO_DEFAULT_VALUE",
+          "max_size": 52
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "source_ref",
+        "type_info": {
+          "type": "VarString",
+          "flags": "NOT_NULL | NO_DEFAULT_VALUE",
+          "max_size": 600
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "author",
+        "type_info": {
+          "type": "VarString",
+          "flags": "",
+          "max_size": 400
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "citation",
+        "type_info": {
+          "type": "Blob",
+          "flags": "BLOB",
+          "max_size": 262140
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "sense",
+        "type_info": {
+          "type": "Blob",
+          "flags": "BLOB",
+          "max_size": 262140
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "2a30568f7a610ce06d860662c0baa194e33a6fb8c2db072e9433d599655cb16f"
+}
