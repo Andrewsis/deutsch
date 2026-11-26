@@ -32,6 +32,7 @@ const uk = {
     "word.prev": "← Пред",
     "word.next": "Слід →",
     "word.of": "{current} з {total}",
+    "word.replay": "Повторити",
     "word.notFound": "Дієслово \"{word}\" не знайдено.",
     "word.backendError": "Помилка бекенду",
     "word.videoError": "Помилка завантаження відео",

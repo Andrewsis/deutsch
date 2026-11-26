@@ -34,6 +34,7 @@ const en: Record<MessageKey, string> = {
     "word.prev": "← Prev",
     "word.next": "Next →",
     "word.of": "{current} of {total}",
+    "word.replay": "Replay",
     "word.notFound": "Verb \"{word}\" not found.",
     "word.backendError": "Backend error",
     "word.videoError": "Failed to load videos",

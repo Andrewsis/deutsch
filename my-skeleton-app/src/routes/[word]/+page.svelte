@@ -4,7 +4,15 @@
     import { onMount } from "svelte";
     import { apiUrl } from "$lib/api";
     import LangSwitcher from "$lib/components/LangSwitcher.svelte";
+    import YouTubeClip from "$lib/components/YouTubeClip.svelte";
     import { t } from "$lib/i18n";
+
+    type Example = {
+        video_id: string;
+        start_sec: number;
+        end_sec: number | null;
+        full_text: string;
+    };
 
     export let data: PageData;
 
@@ -24,9 +32,11 @@
 
     let isPlayerVisible = false;
     let isLoadingVideo = false;
-    let currentExamples: any[] = [];
+    let currentExamples: Example[] = [];
     let currentIndex = 0;
     let targetWord = "";
+    let clip: YouTubeClip | undefined;
+    let clipEnded = false;
 
     $: currentVideo = currentExamples[currentIndex];
 
@@ -1078,19 +1088,13 @@
                     <span class="text-white text-xs">{$t("word.loading")}</span>
                 </div>
             {:else if currentVideo}
-                {#key currentVideo.video_id + currentVideo.start_sec}
-                    <iframe
-                        class="w-full h-full"
-                        src="https://www.youtube.com/embed/{currentVideo.video_id}?start={Math.max(
-                            0,
-                            Math.floor(currentVideo.start_sec) - 1,
-                        )}&autoplay=1"
-                        frameborder="0"
-                        allow="autoplay; encrypted-media"
-                        allowfullscreen
-                    >
-                    </iframe>
-                {/key}
+                <YouTubeClip
+                    bind:this={clip}
+                    bind:ended={clipEnded}
+                    videoId={currentVideo.video_id}
+                    startSec={currentVideo.start_sec}
+                    endSec={currentVideo.end_sec}
+                />
             {:else}
                 <span class="text-stone-400 text-sm">{$t("word.noVideo")}</span>
             {/if}
@@ -1115,11 +1119,22 @@
                         {$t("word.prev")}
                     </button>
 
-                    <span
-                        class="text-[10px] md:text-xs text-stone-500 font-mono"
-                    >
-                        {$t("word.of", { current: currentIndex + 1, total: currentExamples.length })}
-                    </span>
+                    <div class="flex items-center gap-3">
+                        <button
+                            on:click={() => clip?.replay()}
+                            title={$t("word.replay")}
+                            class="px-2.5 py-1 text-xs rounded font-medium transition-colors {clipEnded
+                                ? 'bg-orange-500 text-white hover:bg-orange-600'
+                                : 'bg-stone-100 dark:bg-stone-800 dark:text-white hover:bg-stone-200 dark:hover:bg-stone-700'}"
+                        >
+                            ⟲ {$t("word.replay")}
+                        </button>
+                        <span
+                            class="text-[10px] md:text-xs text-stone-500 font-mono"
+                        >
+                            {$t("word.of", { current: currentIndex + 1, total: currentExamples.length })}
+                        </span>
+                    </div>
 
                     <button
                         on:click={nextVideo}

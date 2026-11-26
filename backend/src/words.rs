@@ -21,6 +21,8 @@ pub struct ExampleParams {
 pub struct ExampleResponse {
     pub video_id: String,
     pub start_sec: f64,
+    /// Start of the next subtitle line in the same video (end of this phrase), if any.
+    pub end_sec: Option<f64>,
     pub full_text: String,
 }
 
@@ -34,11 +36,16 @@ pub async fn get_examples(
     let rows = sqlx::query_as::<_, ExampleResponse>(
         r#"
         SELECT
-            video_id,
-            CAST(start_sec AS DOUBLE) AS start_sec,
-            text AS full_text
-        FROM subtitles
-        WHERE MATCH(text) AGAINST(CONCAT('"', ?, '"') IN BOOLEAN MODE)
+            s.video_id,
+            CAST(s.start_sec AS DOUBLE) AS start_sec,
+            CAST((
+                SELECT MIN(n.start_sec)
+                FROM subtitles n
+                WHERE n.video_id = s.video_id AND n.start_sec > s.start_sec
+            ) AS DOUBLE) AS end_sec,
+            s.text AS full_text
+        FROM subtitles s
+        WHERE MATCH(s.text) AGAINST(CONCAT('"', ?, '"') IN BOOLEAN MODE)
         LIMIT ? OFFSET ?
         "#,
     )
