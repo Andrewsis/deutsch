@@ -1,0 +1,24 @@
+{
+  "db_name": "MySQL",
+  "query": "\n            SELECT verb_id\n            FROM verb_translations\n            WHERE lang = ? AND translation IS NOT NULL AND verb_id != ?\n            ORDER BY RAND()\n            LIMIT 3\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "verb_id",
+        "type_info": {
+          "type": "Long",
+          "flags": "NOT_NULL | PRIMARY_KEY | NO_DEFAULT_VALUE",
+          "max_size": 11
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "83b6e1db2cbe8d83266477071d5a02fba8c56a38e045e5f55d3b285f8ab827e8"
+}

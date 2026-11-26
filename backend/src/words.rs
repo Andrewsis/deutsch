@@ -7,6 +7,7 @@ use sqlx::prelude::FromRow;
 use sqlx::types::Json as SqlxJson;
 use tracing::{error, info, warn};
 
+use crate::lang::{self, LangQuery};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
@@ -107,31 +108,36 @@ pub struct Word {
     pub inf: Option<String>,
     pub pa1: Option<String>,
     pub pa2: Option<String>,
-    pub translation_ua: Option<String>,
-    pub praepositionen_ua: Option<SqlxJson<Value>>,
+    pub translation: Option<String>,
+    pub prepositions: Option<SqlxJson<Value>>,
     pub audio_forms: Option<SqlxJson<Vec<String>>>,
 }
 
 pub async fn get_word(
     State(state): State<AppState>,
     Path(word): Path<String>,
+    Query(lang): Query<LangQuery>,
 ) -> Result<Json<Word>, (StatusCode, String)> {
     let row = sqlx::query_as!(
         Word,
         r#"SELECT
-        lemma, aux,
-        prs1sg, prs2sg, prs3sg, prs1pl, prs2pl, prs3pl,
-        prt1sg, prt2sg, prt3sg, prt1pl, prt2pl, prt3pl,
-        kj1_1sg, kj1_2sg, kj1_3sg, kj1_1pl, kj1_2pl, kj1_3pl,
-        kj2_1sg, kj2_2sg, kj2_3sg, kj2_1pl, kj2_2pl, kj2_3pl,
-        fut1_1sg, fut1_2sg, fut1_3sg, fut1_1pl, fut1_2pl, fut1_3pl,
-        fut2_1sg, fut2_2sg, fut2_3sg, fut2_1pl, fut2_2pl, fut2_3pl,
-        imp2sg, imp2pl, inf, pa1, pa2,
-        translation_ua,
-        praepositionen_ua as "praepositionen_ua: SqlxJson<Value>",
-        audio_forms as "audio_forms: SqlxJson<Vec<String>>"
-        FROM verben_wide
-        WHERE lemma = ?"#,
+        v.lemma, v.aux,
+        v.prs1sg, v.prs2sg, v.prs3sg, v.prs1pl, v.prs2pl, v.prs3pl,
+        v.prt1sg, v.prt2sg, v.prt3sg, v.prt1pl, v.prt2pl, v.prt3pl,
+        v.kj1_1sg, v.kj1_2sg, v.kj1_3sg, v.kj1_1pl, v.kj1_2pl, v.kj1_3pl,
+        v.kj2_1sg, v.kj2_2sg, v.kj2_3sg, v.kj2_1pl, v.kj2_2pl, v.kj2_3pl,
+        v.fut1_1sg, v.fut1_2sg, v.fut1_3sg, v.fut1_1pl, v.fut1_2pl, v.fut1_3pl,
+        v.fut2_1sg, v.fut2_2sg, v.fut2_3sg, v.fut2_1pl, v.fut2_2pl, v.fut2_3pl,
+        v.imp2sg, v.imp2pl, v.inf, v.pa1, v.pa2,
+        COALESCE(t.translation, d.translation) AS translation,
+        COALESCE(t.prepositions, d.prepositions) as "prepositions: SqlxJson<Value>",
+        v.audio_forms as "audio_forms: SqlxJson<Vec<String>>"
+        FROM verben_wide v
+        LEFT JOIN verb_translations t ON t.verb_id = v.id AND t.lang = ?
+        LEFT JOIN verb_translations d ON d.verb_id = v.id AND d.lang = ?
+        WHERE v.lemma = ?"#,
+        lang.code(),
+        lang::DEFAULT,
         word
     )
     .fetch_one(&state.pool)

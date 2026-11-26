@@ -1,0 +1,24 @@
+{
+  "db_name": "MySQL",
+  "query": "\n        SELECT COALESCE(t.translation, d.translation) AS \"translation?\"\n        FROM verben_wide v\n        LEFT JOIN verb_translations t ON t.verb_id = v.id AND t.lang = ?\n        LEFT JOIN verb_translations d ON d.verb_id = v.id AND d.lang = ?\n        WHERE v.id = ?\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "translation?",
+        "type_info": {
+          "type": "MediumBlob",
+          "flags": "",
+          "max_size": 1048560
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "779a00ba7e3ff916f81241dfe59b1bca2ff51be27adfb25d2d60d3d39a3744d1"
+}

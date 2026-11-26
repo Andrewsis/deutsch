@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "SELECT\n        lemma, aux,\n        prs1sg, prs2sg, prs3sg, prs1pl, prs2pl, prs3pl,\n        prt1sg, prt2sg, prt3sg, prt1pl, prt2pl, prt3pl,\n        kj1_1sg, kj1_2sg, kj1_3sg, kj1_1pl, kj1_2pl, kj1_3pl,\n        kj2_1sg, kj2_2sg, kj2_3sg, kj2_1pl, kj2_2pl, kj2_3pl,\n        fut1_1sg, fut1_2sg, fut1_3sg, fut1_1pl, fut1_2pl, fut1_3pl,\n        fut2_1sg, fut2_2sg, fut2_3sg, fut2_1pl, fut2_2pl, fut2_3pl,\n        imp2sg, imp2pl, inf, pa1, pa2,\n        translation_ua,\n        praepositionen_ua as \"praepositionen_ua: SqlxJson<Value>\",\n        audio_forms as \"audio_forms: SqlxJson<Vec<String>>\"\n        FROM verben_wide\n        WHERE lemma = ?",
+  "query": "SELECT\n        v.lemma, v.aux,\n        v.prs1sg, v.prs2sg, v.prs3sg, v.prs1pl, v.prs2pl, v.prs3pl,\n        v.prt1sg, v.prt2sg, v.prt3sg, v.prt1pl, v.prt2pl, v.prt3pl,\n        v.kj1_1sg, v.kj1_2sg, v.kj1_3sg, v.kj1_1pl, v.kj1_2pl, v.kj1_3pl,\n        v.kj2_1sg, v.kj2_2sg, v.kj2_3sg, v.kj2_1pl, v.kj2_2pl, v.kj2_3pl,\n        v.fut1_1sg, v.fut1_2sg, v.fut1_3sg, v.fut1_1pl, v.fut1_2pl, v.fut1_3pl,\n        v.fut2_1sg, v.fut2_2sg, v.fut2_3sg, v.fut2_1pl, v.fut2_2pl, v.fut2_3pl,\n        v.imp2sg, v.imp2pl, v.inf, v.pa1, v.pa2,\n        COALESCE(t.translation, d.translation) AS translation,\n        COALESCE(t.prepositions, d.prepositions) as \"prepositions: SqlxJson<Value>\",\n        v.audio_forms as \"audio_forms: SqlxJson<Vec<String>>\"\n        FROM verben_wide v\n        LEFT JOIN verb_translations t ON t.verb_id = v.id AND t.lang = ?\n        LEFT JOIN verb_translations d ON d.verb_id = v.id AND d.lang = ?\n        WHERE v.lemma = ?",
   "describe": {
     "columns": [
       {
@@ -392,19 +392,19 @@
       },
       {
         "ordinal": 43,
-        "name": "translation_ua",
+        "name": "translation",
         "type_info": {
-          "type": "Blob",
-          "flags": "BLOB",
-          "max_size": 262140
+          "type": "MediumBlob",
+          "flags": "",
+          "max_size": 1048560
         }
       },
       {
         "ordinal": 44,
-        "name": "praepositionen_ua: SqlxJson<Value>",
+        "name": "prepositions: SqlxJson<Value>",
         "type_info": {
-          "type": "Blob",
-          "flags": "BLOB | BINARY",
+          "type": "LongBlob",
+          "flags": "BINARY",
           "max_size": 4294967295
         }
       },
@@ -419,7 +419,7 @@
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 3
     },
     "nullable": [
       false,
@@ -470,5 +470,5 @@
       true
     ]
   },
-  "hash": "805e78c08c69f5038c98284335efae33185a761d7f0fce05bbd4b3921c891254"
+  "hash": "9632f70f306b8b58af4aebc7e0ce3f47a8264a4bfe9ff29505351fa5f510d7fd"
 }

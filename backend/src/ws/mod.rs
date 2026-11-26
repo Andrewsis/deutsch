@@ -1,26 +1,33 @@
 pub mod game;
 
-use axum::extract::State;
-use axum::extract::WebSocketUpgrade;
+use axum::extract::{Query, State, WebSocketUpgrade};
 use tokio::sync::oneshot;
 use tracing::{error, info, warn};
 
 use crate::auth::Claims;
-use crate::state::AppState;
+use crate::lang::LangQuery;
+use crate::state::{AppState, Opponent};
 
 #[tracing::instrument(skip(ws, state))]
 pub async fn ws_handler(
     ws: WebSocketUpgrade,
     claims: Claims,
+    Query(lang): Query<LangQuery>,
     State(state): State<AppState>,
 ) -> axum::response::Response {
     let username = claims.sub;
-    info!("Player {} is connecting to WebSocket", username);
-    ws.on_upgrade(move |socket| handle_socket(socket, username, state))
+    let lang = lang.code();
+    info!("Player {} ({}) is connecting to WebSocket", username, lang);
+    ws.on_upgrade(move |socket| handle_socket(socket, username, lang, state))
 }
 
-async fn handle_socket(socket: axum::extract::ws::WebSocket, username: String, state: AppState) {
-    let (tx, rx) = oneshot::channel::<(axum::extract::ws::WebSocket, String)>();
+async fn handle_socket(
+    socket: axum::extract::ws::WebSocket,
+    username: String,
+    lang: &'static str,
+    state: AppState,
+) {
+    let (tx, rx) = oneshot::channel::<Opponent>();
 
     let mut lobby = state.waiting_player.lock().await;
     if lobby.is_none() {
@@ -29,12 +36,13 @@ async fn handle_socket(socket: axum::extract::ws::WebSocket, username: String, s
         drop(lobby);
 
         match rx.await {
-            Ok((opponent_socket, opponent_name)) => {
+            Ok((opponent_socket, opponent_name, opponent_lang)) => {
                 tokio::spawn(game::run_game(
                     socket,
                     username,
                     opponent_socket,
                     opponent_name,
+                    [lang, opponent_lang],
                     state.pool,
                 ));
             }
@@ -47,7 +55,7 @@ async fn handle_socket(socket: axum::extract::ws::WebSocket, username: String, s
         drop(lobby);
 
         info!("Match found: {} vs {}", opponent_name, username);
-        if opponent_tx.send((socket, username)).is_err() {
+        if opponent_tx.send((socket, username, lang)).is_err() {
             error!("Failed to wake up waiting player");
         }
     }

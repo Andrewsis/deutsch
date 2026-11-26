@@ -1,5 +1,6 @@
 mod auth;
 mod flashcards;
+mod lang;
 mod state;
 mod stats;
 mod words;

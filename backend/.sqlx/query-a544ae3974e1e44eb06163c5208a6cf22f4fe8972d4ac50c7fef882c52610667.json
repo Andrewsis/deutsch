@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "\n        SELECT v.id, v.lemma, v.translation_ua,\n               v.prs3sg, v.prt3sg, v.pa2, v.aux\n        FROM verben_wide v\n        ORDER BY RAND()\n        LIMIT 10\n        ",
+  "query": "\n        SELECT v.id, v.lemma,\n               COALESCE(t.translation, d.translation) AS translation,\n               v.prs3sg, v.prt3sg, v.pa2, v.aux\n        FROM verben_wide v\n        LEFT JOIN verb_translations t ON t.verb_id = v.id AND t.lang = ?\n        LEFT JOIN verb_translations d ON d.verb_id = v.id AND d.lang = ?\n        ORDER BY RAND()\n        LIMIT 10\n        ",
   "describe": {
     "columns": [
       {
@@ -23,11 +23,11 @@
       },
       {
         "ordinal": 2,
-        "name": "translation_ua",
+        "name": "translation",
         "type_info": {
-          "type": "Blob",
-          "flags": "BLOB",
-          "max_size": 262140
+          "type": "MediumBlob",
+          "flags": "",
+          "max_size": 1048560
         }
       },
       {
@@ -68,7 +68,7 @@
       }
     ],
     "parameters": {
-      "Right": 0
+      "Right": 2
     },
     "nullable": [
       false,
@@ -80,5 +80,5 @@
       true
     ]
   },
-  "hash": "5405c53c0d73b3d372f73d4f357d4b526cebac7914c548eb55f12576c14bb0ff"
+  "hash": "a544ae3974e1e44eb06163c5208a6cf22f4fe8972d4ac50c7fef882c52610667"
 }

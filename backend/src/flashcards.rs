@@ -1,10 +1,11 @@
 use axum::Json;
-use axum::extract::State;
+use axum::extract::{Query, State};
 use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
 use tracing::{error, info, instrument};
 
 use crate::auth::Claims;
+use crate::lang::{self, LangQuery};
 use crate::state::AppState;
 
 #[derive(Deserialize, Debug)]
@@ -17,7 +18,7 @@ pub struct ReviewRequest {
 pub struct FlashcardResponse {
     pub id: i32,
     pub lemma: String,
-    pub translation_ua: Option<String>,
+    pub translation: Option<String>,
     pub prs3sg: Option<String>,
     pub prt3sg: Option<String>,
     pub pa2: Option<String>,
@@ -28,6 +29,7 @@ pub struct FlashcardResponse {
 pub async fn get_due_flashcards(
     State(state): State<AppState>,
     claims: Claims,
+    Query(lang): Query<LangQuery>,
 ) -> Result<Json<Vec<FlashcardResponse>>, (StatusCode, String)> {
     let username = claims.sub;
     info!("Fetching due flashcards for user: {}", username);
@@ -35,12 +37,17 @@ pub async fn get_due_flashcards(
     let words = sqlx::query_as!(
         FlashcardResponse,
         r#"
-        SELECT v.id, v.lemma, v.translation_ua,
+        SELECT v.id, v.lemma,
+               COALESCE(t.translation, d.translation) AS translation,
                v.prs3sg, v.prt3sg, v.pa2, v.aux
         FROM verben_wide v
+        LEFT JOIN verb_translations t ON t.verb_id = v.id AND t.lang = ?
+        LEFT JOIN verb_translations d ON d.verb_id = v.id AND d.lang = ?
         ORDER BY RAND()
         LIMIT 10
-        "#
+        "#,
+        lang.code(),
+        lang::DEFAULT
     )
     .fetch_all(&state.pool)
     .await
