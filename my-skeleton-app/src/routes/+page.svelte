@@ -1,15 +1,9 @@
 <script lang="ts">
     import WordStats from "$lib/components/WordStats.svelte";
-    import type { PageData } from "./$types";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
 
-    export let data: PageData;
-
     let searchTerm = "";
-
-    $: w = data?.word;
-    $: preps = w?.praepositionen_ua || [];
 
     let isDark = false;
 
@@ -201,547 +195,51 @@
 </div>
 
 <main class="container mx-auto p-4 max-w-6xl space-y-8 mt-6">
-    {#if w}
-        <header
-            class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-stone-200 dark:border-stone-800"
-        >
-            <div class="space-y-1">
-                <div class="flex items-center gap-3">
-                    <h1
-                        class="text-4xl md:text-5xl font-extrabold tracking-tight text-stone-900 dark:text-white"
-                    >
-                        {w.lemma}
-                    </h1>
-                    <span
-                        class="text-xs font-mono text-stone-500 bg-stone-200 dark:bg-stone-800 px-2 py-1 rounded-md mt-2 md:mt-4"
-                        >infinitiv</span
-                    >
-                </div>
-                {#if w.translation_ua}
-                    <h3
-                        class="text-xl md:text-2xl font-medium text-stone-600 dark:text-stone-300 mt-2"
-                    >
-                        {w.translation_ua}
-                    </h3>
-                {/if}
-            </div>
-
-            <div class="flex items-center gap-3 text-sm">
-                <span class="text-stone-500">Hilfsverb:</span>
-                <span
-                    class="font-mono bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-3 py-1 rounded-md text-stone-900 dark:text-stone-100 font-bold shadow-sm"
-                >
-                    {w.aux ?? "—"}
-                </span>
-            </div>
-        </header>
-
-        {#if preps.length > 0}
-            <section
-                class="border border-orange-200 dark:border-orange-900/50 rounded-2xl p-6 bg-orange-50/50 dark:bg-orange-900/10"
+    <div
+        class="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 px-4"
+    >
+        <span class="text-7xl opacity-90 drop-shadow-md">🦊</span>
+        <div class="space-y-2">
+            <h2
+                class="text-3xl font-bold text-stone-800 dark:text-stone-200"
             >
-                <h4
-                    class="text-sm font-bold text-orange-600 dark:text-orange-500 uppercase tracking-wider mb-4 flex items-center gap-2"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        ><path
-                            d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
-                        ></path><path
-                            d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-                        ></path></svg
-                    >
-                    Управління (Rektion)
-                </h4>
-                <div class="flex flex-col gap-3">
-                    {#each preps as prep}
-                        <div
-                            class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4"
-                        >
-                            <span
-                                class="font-mono font-bold bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-stone-900 dark:text-stone-100 px-3 py-1.5 rounded-lg text-sm shadow-sm"
-                            >
-                                {prep.phrase}
-                            </span>
-                            <span class="text-stone-700 dark:text-stone-300"
-                                >{prep.ua}</span
-                            >
-                        </div>
-                    {/each}
-                </div>
-            </section>
-        {/if}
-
-        <div
-            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6"
-        >
-            <section
-                class="bg-white dark:bg-[#1a1a1a] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-sm"
+                Введіть дієслово в пошук
+            </h2>
+            <p
+                class="text-stone-500 dark:text-stone-400 text-lg max-w-md mx-auto"
             >
-                <h4
-                    class="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-4"
+                Знайдіть відмінювання, переклад та керування німецьких
+                дієслів. Наприклад:
+                <button
+                    on:click={() => {
+                        searchTerm = "machen";
+                        handleSearch();
+                    }}
+                    class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 mx-1 transition-colors"
+                    >machen</button
+                >,
+                <button
+                    on:click={() => {
+                        searchTerm = "haben";
+                        handleSearch();
+                    }}
+                    class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 mx-1 transition-colors"
+                    >haben</button
                 >
-                    Präsens
-                </h4>
-                <ul class="space-y-2 text-sm">
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ich</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prs1sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">du</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prs2sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">er/sie/es</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prs3sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">wir</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prs1pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ihr</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prs2pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li class="flex justify-between">
-                        <span class="text-stone-500 w-16">sie/Sie</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prs3pl ?? "-"}</strong
-                        >
-                    </li>
-                </ul>
-            </section>
-
-            <section
-                class="bg-white dark:bg-[#1a1a1a] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-sm"
-            >
-                <h4
-                    class="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-4"
-                >
-                    Präteritum
-                </h4>
-                <ul class="space-y-2 text-sm">
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ich</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prt1sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">du</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prt2sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">er/sie/es</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prt3sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">wir</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prt1pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ihr</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prt2pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li class="flex justify-between">
-                        <span class="text-stone-500 w-16">sie/Sie</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.prt3pl ?? "-"}</strong
-                        >
-                    </li>
-                </ul>
-            </section>
-
-            {#if w.pa2 && w.aux}
-                <section
-                    class="bg-white dark:bg-[#1a1a1a] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-sm"
-                >
-                    <h4
-                        class="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-4"
-                    >
-                        Perfekt
-                    </h4>
-                    <ul class="space-y-2 text-sm">
-                        <li
-                            class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                        >
-                            <span class="text-stone-500 w-16">ich</span>
-                            <span class="text-stone-900 dark:text-stone-100"
-                                >{w.aux === "sein" ? "bin" : "habe"}
-                                <strong>{w.pa2}</strong></span
-                            >
-                        </li>
-                        <li
-                            class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                        >
-                            <span class="text-stone-500 w-16">du</span>
-                            <span class="text-stone-900 dark:text-stone-100"
-                                >{w.aux === "sein" ? "bist" : "hast"}
-                                <strong>{w.pa2}</strong></span
-                            >
-                        </li>
-                        <li
-                            class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                        >
-                            <span class="text-stone-500 w-16">er/sie/es</span>
-                            <span class="text-stone-900 dark:text-stone-100"
-                                >{w.aux === "sein" ? "ist" : "hat"}
-                                <strong>{w.pa2}</strong></span
-                            >
-                        </li>
-                        <li
-                            class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                        >
-                            <span class="text-stone-500 w-16">wir</span>
-                            <span class="text-stone-900 dark:text-stone-100"
-                                >{w.aux === "sein" ? "sind" : "haben"}
-                                <strong>{w.pa2}</strong></span
-                            >
-                        </li>
-                        <li
-                            class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                        >
-                            <span class="text-stone-500 w-16">ihr</span>
-                            <span class="text-stone-900 dark:text-stone-100"
-                                >{w.aux === "sein" ? "seid" : "habt"}
-                                <strong>{w.pa2}</strong></span
-                            >
-                        </li>
-                        <li class="flex justify-between">
-                            <span class="text-stone-500 w-16">sie/Sie</span>
-                            <span class="text-stone-900 dark:text-stone-100"
-                                >{w.aux === "sein" ? "sind" : "haben"}
-                                <strong>{w.pa2}</strong></span
-                            >
-                        </li>
-                    </ul>
-                </section>
-            {/if}
-
-            <section
-                class="bg-white dark:bg-[#1a1a1a] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-sm"
-            >
-                <h4
-                    class="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-4"
-                >
-                    Futur I
-                </h4>
-                <ul class="space-y-2 text-sm">
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ich</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.fut1_1sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">du</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.fut1_2sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">er/sie/es</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.fut1_3sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">wir</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.fut1_1pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ihr</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.fut1_2pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li class="flex justify-between">
-                        <span class="text-stone-500 w-16">sie/Sie</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.fut1_3pl ?? "-"}</strong
-                        >
-                    </li>
-                </ul>
-            </section>
-
-            <section
-                class="bg-white dark:bg-[#1a1a1a] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-sm"
-            >
-                <h4
-                    class="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-4"
-                >
-                    Konjunktiv I
-                </h4>
-                <ul class="space-y-2 text-sm">
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ich</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj1_1sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">du</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj1_2sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">er/sie/es</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj1_3sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">wir</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj1_1pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ihr</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj1_2pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li class="flex justify-between">
-                        <span class="text-stone-500 w-16">sie/Sie</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj1_3pl ?? "-"}</strong
-                        >
-                    </li>
-                </ul>
-            </section>
-
-            <section
-                class="bg-white dark:bg-[#1a1a1a] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-sm"
-            >
-                <h4
-                    class="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-4"
-                >
-                    Konjunktiv II
-                </h4>
-                <ul class="space-y-2 text-sm">
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ich</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj2_1sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">du</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj2_2sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">er/sie/es</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj2_3sg ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">wir</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj2_1pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li
-                        class="flex justify-between border-b border-stone-100 dark:border-stone-800/50 pb-1"
-                    >
-                        <span class="text-stone-500 w-16">ihr</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj2_2pl ?? "-"}</strong
-                        >
-                    </li>
-                    <li class="flex justify-between">
-                        <span class="text-stone-500 w-16">sie/Sie</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.kj2_3pl ?? "-"}</strong
-                        >
-                    </li>
-                </ul>
-            </section>
-
-            <section
-                class="col-span-full bg-white dark:bg-[#1a1a1a] border border-stone-200 dark:border-stone-800 rounded-2xl p-6 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-8"
-            >
-                <div class="space-y-3">
-                    <h5
-                        class="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest border-b border-stone-100 dark:border-stone-800 pb-2"
-                    >
-                        Imperativ
-                    </h5>
-                    <p class="flex justify-between text-sm">
-                        <span class="text-stone-500">du:</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.imp2sg ?? "-"}</strong
-                        >
-                    </p>
-                    <p class="flex justify-between text-sm">
-                        <span class="text-stone-500">ihr:</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.imp2pl ?? "-"}</strong
-                        >
-                    </p>
-                </div>
-                <div class="space-y-3">
-                    <h5
-                        class="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest border-b border-stone-100 dark:border-stone-800 pb-2"
-                    >
-                        Partizipien
-                    </h5>
-                    <p class="flex justify-between text-sm">
-                        <span class="text-stone-500">P I:</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.pa1 ?? "-"}</strong
-                        >
-                    </p>
-                    <p class="flex justify-between text-sm">
-                        <span class="text-stone-500">P II:</span>
-                        <strong class="text-stone-900 dark:text-stone-100"
-                            >{w.pa2 ?? "-"}</strong
-                        >
-                    </p>
-                </div>
-                <div
-                    class="flex flex-col justify-center items-center p-4 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800"
-                >
-                    <h5
-                        class="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-2"
-                    >
-                        Infinitive
-                    </h5>
-                    <strong
-                        class="text-xl font-bold text-stone-900 dark:text-stone-200"
-                        >{w.inf ?? "-"}</strong
-                    >
-                </div>
-            </section>
+                або
+                <button
+                    on:click={() => {
+                        searchTerm = "sein";
+                        handleSearch();
+                    }}
+                    class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 mx-1 transition-colors"
+                    >sein</button
+                >.
+            </p>
         </div>
-    {:else}
-        <div
-            class="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 px-4"
-        >
-            <span class="text-7xl opacity-90 drop-shadow-md">🦊</span>
-            <div class="space-y-2">
-                <h2
-                    class="text-3xl font-bold text-stone-800 dark:text-stone-200"
-                >
-                    Введіть дієслово в пошук
-                </h2>
-                <p
-                    class="text-stone-500 dark:text-stone-400 text-lg max-w-md mx-auto"
-                >
-                    Знайдіть відмінювання, переклад та керування німецьких
-                    дієслів. Наприклад:
-                    <button
-                        on:click={() => {
-                            searchTerm = "machen";
-                            handleSearch();
-                        }}
-                        class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 mx-1 transition-colors"
-                        >machen</button
-                    >,
-                    <button
-                        on:click={() => {
-                            searchTerm = "haben";
-                            handleSearch();
-                        }}
-                        class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 mx-1 transition-colors"
-                        >haben</button
-                    >
-                    або
-                    <button
-                        on:click={() => {
-                            searchTerm = "sein";
-                            handleSearch();
-                        }}
-                        class="text-orange-500 hover:text-orange-600 underline underline-offset-4 decoration-orange-200 mx-1 transition-colors"
-                        >sein</button
-                    >.
-                </p>
-            </div>
-        </div>
+    </div>
 
-        <WordStats />
-    {/if}
+    <WordStats />
 </main>
 
 <style>
