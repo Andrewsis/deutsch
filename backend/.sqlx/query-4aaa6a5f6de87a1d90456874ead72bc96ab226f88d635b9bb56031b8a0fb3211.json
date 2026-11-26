@@ -1,0 +1,24 @@
+{
+  "db_name": "MySQL",
+  "query": "\n            SELECT translation_ua\n            FROM verben_wide\n            WHERE\n                translation_ua IS NOT NULL\n            AND\n                lemma != ?\n            ORDER BY RAND()\n            LIMIT 3\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "translation_ua",
+        "type_info": {
+          "type": "Blob",
+          "flags": "BLOB",
+          "max_size": 262140
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "4aaa6a5f6de87a1d90456874ead72bc96ab226f88d635b9bb56031b8a0fb3211"
+}

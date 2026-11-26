@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "INSERT INTO word_stats (word, is_bigram, count, scraped_at) VALUES (?, 0, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "c521eef036b4257df16e5b1f015810cf7a9b8bdfd2518d8b02360f33e4203b83"
+}

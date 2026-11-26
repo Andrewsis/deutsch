@@ -1,0 +1,44 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT repetition, interval_days, ease_factor FROM user_flashcards WHERE user_id = ? AND verb_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "repetition",
+        "type_info": {
+          "type": "Long",
+          "flags": "",
+          "max_size": 11
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "interval_days",
+        "type_info": {
+          "type": "Long",
+          "flags": "",
+          "max_size": 11
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "ease_factor",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "max_size": 12
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "391f3e52f5410bf351586b5f85c05c18ea6cb8f04952d7de9c92816393d5595f"
+}

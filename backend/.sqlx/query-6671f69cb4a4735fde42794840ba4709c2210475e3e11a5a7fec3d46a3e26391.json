@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "\n        INSERT INTO user_flashcards (user_id, verb_id, repetition, interval_days, ease_factor, next_review)\n        VALUES (?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL ? DAY))\n        ON DUPLICATE KEY UPDATE\n            repetition = VALUES(repetition),\n            interval_days = VALUES(interval_days),\n            ease_factor = VALUES(ease_factor),\n            next_review = VALUES(next_review)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "6671f69cb4a4735fde42794840ba4709c2210475e3e11a5a7fec3d46a3e26391"
+}

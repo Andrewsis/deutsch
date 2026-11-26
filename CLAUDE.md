@@ -29,7 +29,7 @@ cd my-skeleton-app && npm run check          # svelte-check type checking
 cd my-skeleton-app && npm run build
 ```
 
-**sqlx compile-time checking:** the Rust code uses `sqlx::query!` / `query_as!` macros and there is no `.sqlx/` offline cache, so `cargo build`/`check` connects to the database in `DATABASE_URL` at compile time. A reachable MySQL with the real schema is required to compile; schema changes must be applied to the DB before the code using them will build.
+**sqlx compile-time checking:** the Rust code uses `sqlx::query!` / `query_as!` macros. The query metadata is cached in `backend/.sqlx/` and `scraper/.sqlx/`, so `SQLX_OFFLINE=true cargo build` works without a database (this is how Docker builds). Without `SQLX_OFFLINE`, builds connect to `DATABASE_URL`. After changing a macro query or the schema, apply the schema to the DB, then run `cargo sqlx prepare -- --all-targets` in `backend/` (or `cargo sqlx prepare` in `scraper/`) and commit `.sqlx/`; `cargo sqlx prepare --check` verifies the cache is current.
 
 ## Backend architecture
 
@@ -43,7 +43,7 @@ cd my-skeleton-app && npm run build
 
 ### Data-loading binaries (`backend/src/bin/`)
 
-One-off scripts used to build the database (not part of the server); each reads a file from the current working directory:
+One-off scripts used to build the database (not part of the server); each reads a file from the current working directory. They use runtime `sqlx::query()` (not in `.sqlx/`), and `peek`/`parser` need the `verb_meta` / `verb_forms_kaikki` tables, which exist only in the old `deutsch_mdb`, not in `db/schema.sql`:
 
 - `peek.rs` / `parser.rs` — import verbs/forms from kaikki.org Wiktionary JSONL dumps (`kaikki.org-dictionary-German.jsonl`, `german_verbs.jsonl`).
 - `timecode_db_load.rs` — loads `database_ready.json` (YouTube videos + subtitle timecodes) into `videos` / `subtitles`.

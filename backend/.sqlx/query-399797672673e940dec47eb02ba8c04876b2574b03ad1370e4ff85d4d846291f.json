@@ -1,0 +1,24 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT MAX(scraped_at) FROM word_stats",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "MAX(scraped_at)",
+        "type_info": {
+          "type": "Datetime",
+          "flags": "BINARY",
+          "max_size": 19
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "399797672673e940dec47eb02ba8c04876b2574b03ad1370e4ff85d4d846291f"
+}
