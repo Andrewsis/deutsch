@@ -1,11 +1,20 @@
 <script lang="ts">
-    import { invalidate } from "$app/navigation";
+    import { goto, invalidate } from "$app/navigation";
+    import { page } from "$app/stores";
     import { LOCALES, locale, t, type Locale } from "$lib/i18n";
 
     function select(code: Locale) {
         if ($locale === code) return;
+        // Also stores the cookie, so the server renders the next pages in this language.
         locale.set(code);
-        invalidate("app:lang");
+        if ($page.url.searchParams.has("lang")) {
+            // `?lang=` beats the cookie on the server: rewrite it.
+            const url = new URL($page.url);
+            url.searchParams.set("lang", code);
+            goto(url, { replaceState: true, noScroll: true, keepFocus: true, invalidate: ["app:lang"] });
+        } else {
+            invalidate("app:lang");
+        }
     }
 </script>
 

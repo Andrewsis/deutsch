@@ -78,6 +78,13 @@ const en: Record<MessageKey, string> = {
     "register.error": "Registration failed. Please try again.",
     "register.submit": "Sign up",
     "register.haveAccount": "Already have an account?",
+
+    "seo.homeTitle": "DeutschDB — German verb conjugation with translations",
+    "seo.homeDescription":
+        "Conjugate German verbs in every tense, with English translations, verb + preposition patterns, example sentences and real-life video clips.",
+    "seo.wordTitle": "{lemma} — German verb conjugation, translation | DeutschDB",
+    "seo.wordDescription":
+        "Conjugation of the German verb {lemma}{translation}: {forms}. All tenses, Konjunktiv, imperative, example sentences and videos.",
 };
 
 export default en;

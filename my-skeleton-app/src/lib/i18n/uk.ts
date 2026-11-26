@@ -76,6 +76,13 @@ const uk = {
     "register.error": "Помилка реєстрації. Спробуйте ще раз.",
     "register.submit": "Зареєструватися",
     "register.haveAccount": "Вже маєте акаунт?",
+
+    "seo.homeTitle": "DeutschDB — відмінювання німецьких дієслів з перекладом",
+    "seo.homeDescription":
+        "Відмінювання німецьких дієслів у всіх часах, переклад українською, керування з прийменниками, приклади речень і відео з живою німецькою мовою.",
+    "seo.wordTitle": "{lemma} — відмінювання дієслова, переклад | DeutschDB",
+    "seo.wordDescription":
+        "Відмінювання німецького дієслова {lemma}{translation}: {forms}. Усі часи, Konjunktiv, наказовий спосіб, приклади речень і відео.",
 };
 
 export default uk;

@@ -3,6 +3,7 @@
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import LangSwitcher from "$lib/components/LangSwitcher.svelte";
+    import Seo from "$lib/components/Seo.svelte";
     import { t } from "$lib/i18n";
 
     let searchTerm = "";
@@ -31,6 +32,8 @@
         }
     }
 </script>
+
+<Seo title={$t("seo.homeTitle")} description={$t("seo.homeDescription")} path="/" />
 
 <div
     class="sticky top-0 z-10 bg-white/90 dark:bg-[#111]/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800"

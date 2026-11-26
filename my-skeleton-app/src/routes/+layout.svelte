@@ -3,6 +3,14 @@
     import { AppShell } from "@skeletonlabs/skeleton";
     import { page } from "$app/stores";
     import LangSwitcher from "$lib/components/LangSwitcher.svelte";
+    import { locale } from "$lib/i18n";
+    import type { LayoutData } from "./$types";
+
+    export let data: LayoutData;
+
+    // The language the server chose for this request. During SSR this runs synchronously
+    // before the page renders, so the shared store holds this request's language.
+    $: locale.set(data.lang);
 
     // These pages have their own header with the language switcher.
     const ROUTES_WITH_HEADER = ["/", "/[word]"];

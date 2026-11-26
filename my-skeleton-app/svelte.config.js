@@ -1,4 +1,4 @@
-import adapter from "@sveltejs/adapter-static";
+import adapter from "@sveltejs/adapter-node";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -9,8 +9,8 @@ const config = {
   preprocess: [vitePreprocess()],
 
   kit: {
-    // SPA: static build served by nginx, unknown routes fall back to index.html.
-    adapter: adapter({ fallback: "index.html" }),
+    // Node server: public pages (home, verb pages) are rendered on the server for SEO.
+    adapter: adapter(),
   },
 };
 export default config;

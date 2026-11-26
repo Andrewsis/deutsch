@@ -6,7 +6,9 @@
     import LangSwitcher from "$lib/components/LangSwitcher.svelte";
     import YouTubeClip from "$lib/components/YouTubeClip.svelte";
     import ExampleSentences from "$lib/components/ExampleSentences.svelte";
+    import Seo from "$lib/components/Seo.svelte";
     import { t } from "$lib/i18n";
+    import { verbSeo } from "$lib/seo";
 
     type Example = {
         video_id: string;
@@ -21,6 +23,7 @@
 
     $: w = data?.word;
     $: preps = w?.prepositions || [];
+    $: seo = w ? verbSeo(w, $t) : null;
 
     $: audioForms = w?.audio_forms || [];
 
@@ -109,6 +112,10 @@
         );
     }
 </script>
+
+{#if seo}
+    <Seo title={seo.title} description={seo.description} path={`/${encodeURIComponent(w.lemma)}`} />
+{/if}
 
 <div
     class="sticky top-0 z-10 bg-white/90 dark:bg-[#111]/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800"
