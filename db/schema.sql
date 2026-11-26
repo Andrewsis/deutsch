@@ -65,6 +65,18 @@ CREATE TABLE `verben_wide` (
   UNIQUE KEY `uq_lemma` (`lemma`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `verb_translations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `verb_translations` (
+  `verb_id` int(11) NOT NULL,
+  `lang` char(2) NOT NULL,
+  `translation` text DEFAULT NULL,
+  `prepositions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`prepositions`)),
+  PRIMARY KEY (`verb_id`,`lang`),
+  CONSTRAINT `fk_vt_verb` FOREIGN KEY (`verb_id`) REFERENCES `verben_wide` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
