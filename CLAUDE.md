@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-A German-verb learning app for Ukrainian speakers (UI text and translations are Ukrainian). Three independent projects share one MySQL database; there is no workspace or shared crate between them.
+A German-verb learning app. German is the language being learned; the UI and verb translations are localized (currently Ukrainian `uk` and English `en`). Three independent projects share one MySQL database; there is no workspace or shared crate between them.
 
 - `backend/` — Rust (edition 2024) Axum API server on `0.0.0.0:8080`.
 - `my-skeleton-app/` — SvelteKit (Svelte 4) + Skeleton UI + Tailwind frontend on Vite's port 5173.
+- `tools/translate/` — Node/TypeScript script that generates verb translations for a new language with the Claude API (see below).
 - `scraper/` — standalone Rust binary that pulls German news RSS feeds (Spiegel, Zeit, Tagesschau, SZ), counts word/bigram frequencies and writes them to `word_stats`.
 
 There are no tests and no lint config beyond `cargo clippy` / `svelte-check`.
@@ -38,9 +39,10 @@ cd my-skeleton-app && npm run build
 - `main.rs` wires routes, all under `/api`. Allowed CORS origins (with credentials) come from `CORS_ORIGINS` (comma-separated, default `http://localhost:5173`); listen address from `BIND_ADDR` (default `0.0.0.0:8080`). See `backend/.env.example`.
 - `state.rs`: `AppState` = MySQL pool + `waiting_player`, a single-slot matchmaking lobby.
 - `auth.rs`: Argon2 password hashing; login/register set an HttpOnly `jwt` cookie (24h, HS256 with `JWT_SECRET`). `Claims` implements `FromRequestParts`, so adding a `claims: Claims` parameter to any handler makes it require authentication (username is `claims.sub`).
-- `words.rs`: `GET /api/word/{word}` returns the full conjugation row from `verben_wide`; `GET /api/examples?word=&limit=&offset=` does a MySQL FULLTEXT boolean phrase search on `subtitles` and returns YouTube `video_id` + `start_sec` (the frontend embeds YouTube at that timestamp).
+- `lang.rs`: `LangQuery` parses the `?lang=` query parameter (whitelist `SUPPORTED`, unknown/missing → `uk`). Word, flashcard and arena endpoints take it and read `verb_translations`, falling back to `uk` when the requested language has no row.
+- `words.rs`: `GET /api/word/{word}?lang=` returns the full conjugation row from `verben_wide` plus `translation` and `prepositions` (`[{phrase, text}]`); `GET /api/examples?word=&limit=&offset=` does a MySQL FULLTEXT boolean phrase search on `subtitles` and returns YouTube `video_id` + `start_sec` (the frontend embeds YouTube at that timestamp).
 - `flashcards.rs`: SM-2 spaced repetition (`calculate_sm2`), state stored in `user_flashcards` (upsert via `ON DUPLICATE KEY UPDATE`). Note that `get_due_flashcards` currently returns 10 random verbs and does not yet use `next_review`.
-- `ws/`: 1v1 "arena" quiz over WebSocket at `/api/ws/match` (auth via cookie). `ws/mod.rs` pairs players: the first connection parks a `oneshot::Sender` in the lobby and awaits; the second sends its socket through it, and the first player's task spawns `game::run_game`, which owns both sockets. `game.rs` builds 5 questions (lemma → 4 Ukrainian translation options) and exchanges JSON messages tagged by `action`: `start`, `score_update`, `finish` (client sends `{index, answer}`).
+- `ws/`: 1v1 "arena" quiz over WebSocket at `/api/ws/match` (auth via cookie). `ws/mod.rs` pairs players: the first connection parks a `oneshot::Sender` in the lobby and awaits; the second sends its socket through it, and the first player's task spawns `game::run_game`, which owns both sockets. `/api/ws/match?lang=` — each player can use a different language. `game.rs` builds 5 questions (lemma → 4 translation options, per player in their language) and exchanges JSON messages tagged by `action`: `start`, `score_update`, `finish` (client sends `{index, answer}`).
 - `stats.rs`: `GET /api/stats/words` returns the top words/bigrams from the most recent `scraped_at` run of the scraper.
 
 ### Data-loading binaries (`backend/src/bin/`)
@@ -53,12 +55,17 @@ One-off scripts used to build the database (not part of the server); each reads 
 
 ### Key tables
 
-`verben_wide` (one wide row per verb: `lemma`, `aux`, columns per tense/person such as `prs1sg`, `prt3pl`, `kj1_*`, `kj2_*`, `fut1_*`, `fut2_*`, `imp2sg`, `pa1`, `pa2`, plus `translation_ua`, `praepositionen_ua` JSON, `audio_forms` JSON), `users`, `user_flashcards`, `videos`, `subtitles` (FULLTEXT index on `text`), `word_stats` (created by the scraper's own migration).
+`verben_wide` (one wide row per verb: `lemma`, `aux`, columns per tense/person such as `prs1sg`, `prt3pl`, `kj1_*`, `kj2_*`, `fut1_*`, `fut2_*`, `imp2sg`, `pa1`, `pa2`, plus `audio_forms` JSON; legacy `translation_ua` / `praepositionen_ua` are superseded), `verb_translations` (`verb_id`, `lang`, `translation`, `prepositions` JSON `[{phrase, text}]`, PK `(verb_id, lang)`), `users`, `user_flashcards`, `videos`, `subtitles` (FULLTEXT index on `text`), `word_stats` (created by the scraper's own migration).
+
+### Translation generator (`tools/translate/`)
+
+`npx tsx translate.ts --lang en [--limit 30]` reads verbs + Ukrainian hints from `verb_translations` (SELECT only), asks Claude Opus 5.5 (structured outputs, batches of 40) and accumulates results in `out/verbs_<lang>.json` (re-runs skip finished verbs, failures go to `out/failures_<lang>.json`). It writes `out/verb_translations_<lang>.sql`, which is applied to the DB separately. Needs `ANTHROPIC_API_KEY` in `tools/translate/.env`; `DATABASE_URL` defaults to `backend/.env`. Costs real money: run a `--limit` trial first.
 
 ## Frontend architecture
 
 - Routes: `/` (home, verb search, word stats), `/[word]` (verb page: conjugation tables + subtitle video examples, loaded in `+page.ts`), `/study` (flashcards), `/arena` (WebSocket game), `/login`, `/register`.
-- API URLs are built with `apiUrl()` / `wsUrl()` from `src/lib/api.ts`, based on `PUBLIC_API_URL` (`my-skeleton-app/.env`, see `.env.example`). Empty `PUBLIC_API_URL` means same origin (`/api/...`, prod behind nginx). Requests use `credentials: "include"` for the cookie; the frontend origin must be listed in the backend's `CORS_ORIGINS`.
+- i18n: `src/lib/i18n/` — `locale` store (persisted in `localStorage.locale`, default from `navigator.language`), `$t("key", params)` in components, `tr()` in plain .ts. Dictionaries `uk.ts` (source of key names) and `en.ts` (typed `Record<MessageKey, string>`, so a missing key fails `npm run check`). `LangSwitcher.svelte` changes the locale and calls `invalidate("app:lang")`; loaders that fetch translations call `depends("app:lang")`. Adding a language: dictionary + `LOCALES` entry here, `SUPPORTED` in `backend/src/lang.rs`, `LANG_NAMES` in `tools/translate/translate.ts`.
+- API URLs are built with `apiUrl()` / `wsUrl()` from `src/lib/api.ts`, `withLang(path)` appends the current `lang`; based on `PUBLIC_API_URL` (`my-skeleton-app/.env`, see `.env.example`). Empty `PUBLIC_API_URL` means same origin (`/api/...`, prod behind nginx). Requests use `credentials: "include"` for the cookie; the frontend origin must be listed in the backend's `CORS_ORIGINS`.
 
 ## Git
 
@@ -72,5 +79,5 @@ One-off scripts used to build the database (not part of the server); each reads 
 ## Осторожно с данными
 
 - Не запускай бинарники из `backend/src/bin/` и `scraper` без моего прямого разрешения: они пишут в базу.
-- Любые изменения схемы MySQL сначала покажи мне как SQL, не применяй сам.
+- SQL (в том числе изменения схемы) можно выполнять самому, не спрашивая. Изменения схемы сохраняй файлом в `db/migrations/` и в `db/schema.sql`.
 - После изменений запросов `sqlx::query!` запусти `cargo sqlx prepare` и закоммить `.sqlx/`.
