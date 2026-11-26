@@ -29,6 +29,8 @@ cd my-skeleton-app && npm run check          # svelte-check type checking
 cd my-skeleton-app && npm run build
 ```
 
+**Docker:** `cp .env.example .env` (fill in secrets), then `docker compose up -d --build` serves the app on `http://localhost` (nginx serves the static SPA and proxies `/api` incl. WebSocket to `backend`). MariaDB 11.4 is initialised from `db/schema.sql` + `db/seed.sql` (seed is gitignored, must exist locally) only when the `db_data` volume is empty; `docker compose down -v` wipes it for a re-init.
+
 **sqlx compile-time checking:** the Rust code uses `sqlx::query!` / `query_as!` macros. The query metadata is cached in `backend/.sqlx/` and `scraper/.sqlx/`, so `SQLX_OFFLINE=true cargo build` works without a database (this is how Docker builds). Without `SQLX_OFFLINE`, builds connect to `DATABASE_URL`. After changing a macro query or the schema, apply the schema to the DB, then run `cargo sqlx prepare -- --all-targets` in `backend/` (or `cargo sqlx prepare` in `scraper/`) and commit `.sqlx/`; `cargo sqlx prepare --check` verifies the cache is current.
 
 ## Backend architecture
