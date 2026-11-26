@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { browser } from "$app/environment";
+    import { apiUrl } from "$lib/api";
 
     let showPassword = false;
 
@@ -17,10 +17,9 @@
         errorMessage = "";
         isLoading = true;
 
-        const targetIp = browser ? window.location.hostname : "127.0.0.1";
 
         try {
-            const res = await fetch(`http://${targetIp}:8080/api/login`, {
+            const res = await fetch(apiUrl("/api/login"), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

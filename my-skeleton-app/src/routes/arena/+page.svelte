@@ -1,5 +1,6 @@
 <script lang="ts">
     import { browser } from "$app/environment";
+    import { wsUrl } from "$lib/api";
     import { onDestroy } from "svelte";
 
     type Question = {
@@ -24,8 +25,7 @@
 
     function connect() {
         if (!browser) return;
-        const targetIp = window.location.hostname;
-        ws = new WebSocket(`ws://${targetIp}:8080/api/ws/match`);
+        ws = new WebSocket(wsUrl("/api/ws/match"));
 
         ws.onopen = () => {
             status = "waiting";

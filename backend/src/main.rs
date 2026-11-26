@@ -6,7 +6,7 @@ mod words;
 mod ws;
 
 use axum::Router;
-use axum::http::Method;
+use axum::http::{HeaderValue, Method};
 use axum::http::header::{ACCEPT, CONTENT_TYPE};
 use axum::routing::{get, post};
 use sqlx::mysql::MySqlPoolOptions;
@@ -34,11 +34,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
     info!("Database connected successfully.");
 
-    let origins = [
-        "http://localhost:5173".parse().unwrap(),
-        "http://127.0.0.1:5173".parse().unwrap(),
-        "http://192.168.1.71:5173".parse().unwrap(),
-    ];
+    let origins: Vec<HeaderValue> = env::var("CORS_ORIGINS")
+        .unwrap_or_else(|_| "http://localhost:5173".to_string())
+        .split(',')
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(|s| s.parse().expect("invalid origin in CORS_ORIGINS"))
+        .collect();
+    info!("CORS origins: {:?}", origins);
 
     let cors = CorsLayer::new()
         .allow_origin(origins)
@@ -64,8 +67,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .layer(TraceLayer::new_for_http())
         .layer(cors);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
-    info!("Server is listening on 0.0.0.0:8080");
+    let bind_addr = env::var("BIND_ADDR").unwrap_or_else(|_| "0.0.0.0:8080".to_string());
+    let listener = tokio::net::TcpListener::bind(&bind_addr).await?;
+    info!("Server is listening on {}", bind_addr);
     axum::serve(listener, app).await.unwrap();
 
     Ok(())

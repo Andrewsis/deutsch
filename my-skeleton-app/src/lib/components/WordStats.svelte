@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import { apiUrl } from "$lib/api";
 
     type WordStat = {
         word: string;
@@ -16,7 +17,7 @@
     onMount(async () => {
         try {
             const res = await fetch(
-                `http://${window.location.hostname}:8080/api/stats/words`,
+                apiUrl("/api/stats/words"),
                 { credentials: "include" },
             );
             if (!res.ok) throw new Error("Failed to fetch");

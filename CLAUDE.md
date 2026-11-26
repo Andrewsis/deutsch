@@ -16,7 +16,7 @@ There are no tests and no lint config beyond `cargo clippy` / `svelte-check`.
 
 ```sh
 # backend (needs .env with DATABASE_URL and JWT_SECRET)
-cd backend && cargo run                      # API server
+cd backend && cargo run --bin backend         # API server
 cd backend && cargo run --bin <name>         # one-off data loaders, see below
 cd backend && cargo check / cargo clippy
 
@@ -33,7 +33,7 @@ cd my-skeleton-app && npm run build
 
 ## Backend architecture
 
-- `main.rs` wires routes, all under `/api`; CORS allows only port 5173 on `localhost`, `127.0.0.1` and `192.168.1.71` with credentials. A new frontend origin must be added there.
+- `main.rs` wires routes, all under `/api`. Allowed CORS origins (with credentials) come from `CORS_ORIGINS` (comma-separated, default `http://localhost:5173`); listen address from `BIND_ADDR` (default `0.0.0.0:8080`). See `backend/.env.example`.
 - `state.rs`: `AppState` = MySQL pool + `waiting_player`, a single-slot matchmaking lobby.
 - `auth.rs`: Argon2 password hashing; login/register set an HttpOnly `jwt` cookie (24h, HS256 with `JWT_SECRET`). `Claims` implements `FromRequestParts`, so adding a `claims: Claims` parameter to any handler makes it require authentication (username is `claims.sub`).
 - `words.rs`: `GET /api/word/{word}` returns the full conjugation row from `verben_wide`; `GET /api/examples?word=&limit=&offset=` does a MySQL FULLTEXT boolean phrase search on `subtitles` and returns YouTube `video_id` + `start_sec` (the frontend embeds YouTube at that timestamp).
@@ -56,7 +56,7 @@ One-off scripts used to build the database (not part of the server); each reads 
 ## Frontend architecture
 
 - Routes: `/` (home, verb search, word stats), `/[word]` (verb page: conjugation tables + subtitle video examples, loaded in `+page.ts`), `/study` (flashcards), `/arena` (WebSocket game), `/login`, `/register`.
-- No shared API client: each page builds `http://<host>:8080/api/...` itself and uses `credentials: "include"` for the cookie. Most pages use `window.location.hostname`, but `[word]/+page.ts` and `[word]/+page.svelte` hardcode `192.168.1.71` in the browser. Keep the host logic consistent with CORS in `backend/src/main.rs` when changing it.
+- API URLs are built with `apiUrl()` / `wsUrl()` from `src/lib/api.ts`, based on `PUBLIC_API_URL` (`my-skeleton-app/.env`, see `.env.example`). Empty `PUBLIC_API_URL` means same origin (`/api/...`, prod behind nginx). Requests use `credentials: "include"` for the cookie; the frontend origin must be listed in the backend's `CORS_ORIGINS`.
 
 ## Git
 

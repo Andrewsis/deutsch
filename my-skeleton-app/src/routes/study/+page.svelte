@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { browser } from "$app/environment";
+    import { apiUrl } from "$lib/api";
 
     let flashcards: any[] = [];
     let currentIndex = 0;
@@ -11,11 +11,10 @@
     $: currentWord = flashcards[currentIndex];
 
     onMount(async () => {
-        const targetIp = browser ? window.location.hostname : "127.0.0.1";
 
         try {
             const res = await fetch(
-                `http://${targetIp}:8080/api/flashcards/due`,
+                apiUrl("/api/flashcards/due"),
                 {
                     credentials: "include",
                 },
@@ -38,11 +37,10 @@
     });
 
     async function submitReview(quality: number) {
-        const targetIp = browser ? window.location.hostname : "127.0.0.1";
 
         try {
             const res = await fetch(
-                `http://${targetIp}:8080/api/flashcards/review`,
+                apiUrl("/api/flashcards/review"),
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },

@@ -2,7 +2,7 @@
     import type { PageData } from "./$types";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
-    import { browser } from "$app/environment";
+    import { apiUrl } from "$lib/api";
 
     export let data: PageData;
 
@@ -57,11 +57,10 @@
         currentExamples = [];
         currentIndex = 0;
 
-        const targetIp = browser ? "192.168.1.71" : "127.0.0.1";
 
         try {
             const res = await fetch(
-                `http://${targetIp}:8080/api/examples?word=${encodeURIComponent(formText)}&limit=10&offset=0`,
+                apiUrl(`/api/examples?word=${encodeURIComponent(formText)}&limit=10&offset=0`),
             );
             if (res.ok) {
                 currentExamples = await res.json();

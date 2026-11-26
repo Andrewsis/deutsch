@@ -1,14 +1,13 @@
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
-import { browser } from "$app/environment";
+import { apiUrl } from "$lib/api";
 
 export const load: PageLoad = async ({ params, fetch }) => {
   const verb = encodeURIComponent(params.word);
 
-  const targetIp = browser ? "192.168.1.71" : "127.0.0.1";
 
   try {
-    const res = await fetch(`http://${targetIp}:8080/api/word/${verb}`);
+    const res = await fetch(apiUrl(`/api/word/${verb}`));
 
     if (!res.ok) {
       if (res.status === 404) {
