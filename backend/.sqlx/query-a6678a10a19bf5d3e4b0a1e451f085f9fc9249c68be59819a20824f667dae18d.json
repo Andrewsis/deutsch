@@ -1,0 +1,24 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT lemma FROM verben_wide ORDER BY lemma",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "lemma",
+        "type_info": {
+          "type": "VarString",
+          "flags": "NOT_NULL | UNIQUE_KEY | NO_DEFAULT_VALUE",
+          "max_size": 400
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "a6678a10a19bf5d3e4b0a1e451f085f9fc9249c68be59819a20824f667dae18d"
+}

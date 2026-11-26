@@ -58,6 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/api/word/{word}", get(words::get_word))
+        .route("/api/lemmas", get(words::get_lemmas))
         .route("/api/examples", get(words::get_examples))
         .route("/api/sentences", get(examples::get_sentences))
         .route("/api/lemma", get(examples::get_lemma))

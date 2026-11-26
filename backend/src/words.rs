@@ -168,3 +168,20 @@ pub async fn get_word(
         }
     }
 }
+
+/// `GET /api/lemmas`: every verb lemma, alphabetically (used by the frontend sitemap).
+pub async fn get_lemmas(
+    State(state): State<AppState>,
+) -> Result<Json<Vec<String>>, (StatusCode, String)> {
+    sqlx::query_scalar!("SELECT lemma FROM verben_wide ORDER BY lemma")
+        .fetch_all(&state.pool)
+        .await
+        .map(Json)
+        .map_err(|e| {
+            error!("DB error listing lemmas: {}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Database error".to_string(),
+            )
+        })
+}
