@@ -54,7 +54,7 @@
                 <input
                     type="search"
                     bind:value={searchTerm}
-                    placeholder="Найти глагол..."
+                    placeholder="Шукати..."
                     class="w-full bg-stone-100 dark:bg-stone-900 border border-transparent focus:border-orange-500 focus:bg-white dark:focus:bg-stone-950 focus:ring-0 rounded-lg pl-4 pr-10 py-2 text-sm transition-all outline-none text-stone-900 dark:text-stone-100 placeholder-stone-500"
                 />
                 <button

@@ -16,7 +16,13 @@ pub struct Question {
 
 pub async fn build_questions(pool: &MySqlPool) -> Option<Vec<Question>> {
     let words = sqlx::query!(
-        "SELECT lemma, translation_ua FROM verben_wide WHERE translation_ua IS NOT NULL ORDER BY RAND() LIMIT 5"
+        "
+        SELECT lemma, translation_ua
+        FROM verben_wide
+        WHERE translation_ua IS NOT NULL
+        ORDER BY RAND()
+        LIMIT 5
+        "
     )
     .fetch_all(pool)
     .await
@@ -28,7 +34,16 @@ pub async fn build_questions(pool: &MySqlPool) -> Option<Vec<Question>> {
         let correct = word.translation_ua.clone().unwrap_or_default();
 
         let distractors = sqlx::query!(
-            "SELECT translation_ua FROM verben_wide WHERE translation_ua IS NOT NULL AND lemma != ? ORDER BY RAND() LIMIT 3",
+            "
+            SELECT translation_ua
+            FROM verben_wide
+            WHERE
+                translation_ua IS NOT NULL
+            AND
+                lemma != ?
+            ORDER BY RAND()
+            LIMIT 3
+            ",
             word.lemma
         )
         .fetch_all(pool)
@@ -37,7 +52,7 @@ pub async fn build_questions(pool: &MySqlPool) -> Option<Vec<Question>> {
 
         let mut options: Vec<String> = distractors
             .into_iter()
-            .map(|r| r.translation_ua.unwrap_or_default())
+            .map(|row| row.translation_ua.unwrap_or_default())
             .collect();
 
         options.push(correct.clone());
@@ -73,7 +88,10 @@ pub async fn run_game(
 
     let questions_for_client: Vec<serde_json::Value> = questions
         .iter()
-        .map(|q| serde_json::json!({ "index": q.index, "lemma": q.lemma, "options": q.options }))
+        .map(|q| {
+            serde_json::json!({
+            "index": q.index, "lemma": q.lemma, "options": q.options })
+        })
         .collect();
 
     let _ = socket1
@@ -114,8 +132,8 @@ pub async fn run_game(
                         if let Ok(val) = serde_json::from_str::<serde_json::Value>(text.as_str()) {
                             if let (Some(idx), Some(ans)) = (val["index"].as_u64(), val["answer"].as_str()) {
                                 answers1 += 1;
-                                if let Some(q) = questions.get(idx as usize) {
-                                    if ans == q.correct { score1 += 1; }
+                                if let Some(question) = questions.get(idx as usize) {
+                                    if ans == question.correct { score1 += 1; }
                                 }
                                 let _ = socket1.send(Message::Text(serde_json::json!({
                                     "action": "score_update",

@@ -20,28 +20,28 @@ const STOP_WORDS: &[&str] = &[
     "mal", "nun", "dann", "ist", "sind", "war", "waren", "wird", "werden", "hat", "haben", "hatte",
     "hatten", "habe", "sei", "wäre", "würde", "würden", "kann", "können", "muss", "müssen", "soll",
     "sollen", "will", "wollen", "darf", "dürfen", "mag", "mögen", "de", "www", "http", "https",
-    "com",
+    "com", "beim",
 ];
 
-struct RssSource {
+struct ZeitungSource {
     name: &'static str,
     url: &'static str,
 }
 
-const SOURCES: &[RssSource] = &[
-    RssSource {
+const SOURCES: &[ZeitungSource] = &[
+    ZeitungSource {
         name: "spiegel",
         url: "https://www.spiegel.de/schlagzeilen/index.rss",
     },
-    RssSource {
+    ZeitungSource {
         name: "zeit",
         url: "https://newsfeed.zeit.de/news/index",
     },
-    RssSource {
+    ZeitungSource {
         name: "tagesschau",
         url: "https://www.tagesschau.de/index~rss2.xml",
     },
-    RssSource {
+    ZeitungSource {
         name: "sueddeutsche",
         url: "https://rss.sueddeutsche.de/rss/Topthemen",
     },
@@ -71,7 +71,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut all_texts: Vec<String> = Vec::new();
 
     for source in SOURCES {
-        info!("Fetching RSS from {}...", source.name);
+        info!("Fetching info from {}...", source.name);
         match fetch_rss(&client, source.url).await {
             Ok(texts) => {
                 info!("  Got {} items from {}", texts.len(), source.name);

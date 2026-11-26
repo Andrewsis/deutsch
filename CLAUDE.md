@@ -1,0 +1,74 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Overview
+
+A German-verb learning app for Ukrainian speakers (UI text and translations are Ukrainian). Three independent projects share one MySQL database; there is no workspace or shared crate between them.
+
+- `backend/` — Rust (edition 2024) Axum API server on `0.0.0.0:8080`.
+- `my-skeleton-app/` — SvelteKit (Svelte 4) + Skeleton UI + Tailwind frontend on Vite's port 5173.
+- `scraper/` — standalone Rust binary that pulls German news RSS feeds (Spiegel, Zeit, Tagesschau, SZ), counts word/bigram frequencies and writes them to `word_stats`.
+
+There are no tests and no lint config beyond `cargo clippy` / `svelte-check`.
+
+## Commands
+
+```sh
+# backend (needs .env with DATABASE_URL and JWT_SECRET)
+cd backend && cargo run                      # API server
+cd backend && cargo run --bin <name>         # one-off data loaders, see below
+cd backend && cargo check / cargo clippy
+
+# scraper (needs DATABASE_URL)
+cd scraper && cargo run
+
+# frontend
+cd my-skeleton-app && npm run dev            # add `-- --host` to reach it from the LAN
+cd my-skeleton-app && npm run check          # svelte-check type checking
+cd my-skeleton-app && npm run build
+```
+
+**sqlx compile-time checking:** the Rust code uses `sqlx::query!` / `query_as!` macros and there is no `.sqlx/` offline cache, so `cargo build`/`check` connects to the database in `DATABASE_URL` at compile time. A reachable MySQL with the real schema is required to compile; schema changes must be applied to the DB before the code using them will build.
+
+## Backend architecture
+
+- `main.rs` wires routes, all under `/api`; CORS allows only port 5173 on `localhost`, `127.0.0.1` and `192.168.1.71` with credentials. A new frontend origin must be added there.
+- `state.rs`: `AppState` = MySQL pool + `waiting_player`, a single-slot matchmaking lobby.
+- `auth.rs`: Argon2 password hashing; login/register set an HttpOnly `jwt` cookie (24h, HS256 with `JWT_SECRET`). `Claims` implements `FromRequestParts`, so adding a `claims: Claims` parameter to any handler makes it require authentication (username is `claims.sub`).
+- `words.rs`: `GET /api/word/{word}` returns the full conjugation row from `verben_wide`; `GET /api/examples?word=&limit=&offset=` does a MySQL FULLTEXT boolean phrase search on `subtitles` and returns YouTube `video_id` + `start_sec` (the frontend embeds YouTube at that timestamp).
+- `flashcards.rs`: SM-2 spaced repetition (`calculate_sm2`), state stored in `user_flashcards` (upsert via `ON DUPLICATE KEY UPDATE`). Note that `get_due_flashcards` currently returns 10 random verbs and does not yet use `next_review`.
+- `ws/`: 1v1 "arena" quiz over WebSocket at `/api/ws/match` (auth via cookie). `ws/mod.rs` pairs players: the first connection parks a `oneshot::Sender` in the lobby and awaits; the second sends its socket through it, and the first player's task spawns `game::run_game`, which owns both sockets. `game.rs` builds 5 questions (lemma → 4 Ukrainian translation options) and exchanges JSON messages tagged by `action`: `start`, `score_update`, `finish` (client sends `{index, answer}`).
+- `stats.rs`: `GET /api/stats/words` returns the top words/bigrams from the most recent `scraped_at` run of the scraper.
+
+### Data-loading binaries (`backend/src/bin/`)
+
+One-off scripts used to build the database (not part of the server); each reads a file from the current working directory:
+
+- `peek.rs` / `parser.rs` — import verbs/forms from kaikki.org Wiktionary JSONL dumps (`kaikki.org-dictionary-German.jsonl`, `german_verbs.jsonl`).
+- `timecode_db_load.rs` — loads `database_ready.json` (YouTube videos + subtitle timecodes) into `videos` / `subtitles`.
+- `sync_audio.rs` — for every verb in `verben_wide`, finds which forms appear in `subtitles` and stores them in `audio_forms` (JSON).
+
+### Key tables
+
+`verben_wide` (one wide row per verb: `lemma`, `aux`, columns per tense/person such as `prs1sg`, `prt3pl`, `kj1_*`, `kj2_*`, `fut1_*`, `fut2_*`, `imp2sg`, `pa1`, `pa2`, plus `translation_ua`, `praepositionen_ua` JSON, `audio_forms` JSON), `users`, `user_flashcards`, `videos`, `subtitles` (FULLTEXT index on `text`), `word_stats` (created by the scraper's own migration).
+
+## Frontend architecture
+
+- Routes: `/` (home, verb search, word stats), `/[word]` (verb page: conjugation tables + subtitle video examples, loaded in `+page.ts`), `/study` (flashcards), `/arena` (WebSocket game), `/login`, `/register`.
+- No shared API client: each page builds `http://<host>:8080/api/...` itself and uses `credentials: "include"` for the cookie. Most pages use `window.location.hostname`, but `[word]/+page.ts` and `[word]/+page.svelte` hardcode `192.168.1.71` in the browser. Keep the host logic consistent with CORS in `backend/src/main.rs` when changing it.
+
+## Git
+
+- Перед началом задачи проверь `git status`. Если есть несохранённые изменения, скажи мне.
+- Работай в отдельной ветке `feature/...` или `fix/...`, в `main` не коммить.
+- Коммить после каждого законченного шага. Сообщения на английском: `feat:`, `fix:`, `refactor:`, `chore:`.
+- Перед коммитом запускай `cargo clippy` в `backend/` и `scraper/`, а если менялся фронтенд, то `npm run check` в `my-skeleton-app/`.
+- Не коммить `.env`, `target/`, `node_modules/` и большие файлы данных (`*.jsonl`, `database_ready.json`).
+- Не делай `git push`, `git reset --hard` и `push --force` без моего разрешения.
+
+## Осторожно с данными
+
+- Не запускай бинарники из `backend/src/bin/` и `scraper` без моего прямого разрешения: они пишут в базу.
+- Любые изменения схемы MySQL сначала покажи мне как SQL, не применяй сам.
+- После изменений запросов `sqlx::query!` запусти `cargo sqlx prepare` и закоммить `.sqlx/`.
